@@ -20,7 +20,8 @@ loadWiregasm({
     result.init();
     sharky = result;
     console.log(sharky);
-    postMessage({ type: "init", success: true });
+    const columns = vecToArray(sharky.getColumns());
+    postMessage({ type: "init", columns, success: true });
   })
   .catch((error) => {
     console.log({ type: "init", error, success: false });
@@ -75,13 +76,6 @@ self.addEventListener("message", ({ data }) => {
     return postMessage({
       id: data.id,
       result: sharky.checkFilter(data.filter),
-    });
-  }
-
-  if (data.type === "columns") {
-    return postMessage({
-      id: data.id,
-      columns: vecToArray(sharky.getColumns()),
     });
   }
 
