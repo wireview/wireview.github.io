@@ -47,7 +47,7 @@ const devectorize = (obj) => {
 };
 
 self.addEventListener("message", ({ data }) => {
-  console.log("ahoy, worker got a message", data);
+  console.debug("ahoy, worker got a message", data);
 
   if (data.type === "frame") {
     const frame = devectorize(session.getFrame(data.number));
@@ -65,7 +65,6 @@ self.addEventListener("message", ({ data }) => {
     );
     const frames = devectorize(framesVec.frames);
 
-    console.log(frames);
     return postMessage({
       id: data.id,
       frames,
