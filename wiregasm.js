@@ -1,6 +1,6 @@
 var loadWiregasm = (() => {
   var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
-  
+  if (typeof __filename != 'undefined') _scriptName = _scriptName || __filename;
   return (
 async function(moduleArg = {}) {
   var moduleRtn;
@@ -31,14 +31,21 @@ var readyPromise = new Promise((resolve, reject) => {
 // Determine the runtime environment we are in. You can customize this by
 // setting the ENVIRONMENT setting at compile time (see settings.js).
 
-var ENVIRONMENT_IS_WEB = false;
-var ENVIRONMENT_IS_WORKER = true;
-var ENVIRONMENT_IS_NODE = false;
-var ENVIRONMENT_IS_SHELL = false;
+// Attempt to auto-detect the environment
+var ENVIRONMENT_IS_WEB = typeof window == 'object';
+var ENVIRONMENT_IS_WORKER = typeof WorkerGlobalScope != 'undefined';
+// N.b. Electron.js environment is simultaneously a NODE-environment, but
+// also a web environment.
+var ENVIRONMENT_IS_NODE = typeof process == 'object' && typeof process.versions == 'object' && typeof process.versions.node == 'string' && process.type != 'renderer';
+var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+
+if (ENVIRONMENT_IS_NODE) {
+
+}
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpp2xiah6c.js
+// include: /tmp/tmprc20i1t8.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -47,6 +54,7 @@ var ENVIRONMENT_IS_SHELL = false;
     var isPthread = typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD;
     var isWasmWorker = typeof ENVIRONMENT_IS_WASM_WORKER != 'undefined' && ENVIRONMENT_IS_WASM_WORKER;
     if (isPthread || isWasmWorker) return;
+    var isNode = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';
     function loadPackage(metadata) {
 
       var PACKAGE_PATH = '';
@@ -62,7 +70,16 @@ var ENVIRONMENT_IS_SHELL = false;
 var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
 
       function fetchRemotePackage(packageName, packageSize, callback, errback) {
-        
+        if (isNode) {
+          require('fs').readFile(packageName, (err, contents) => {
+            if (err) {
+              errback(err);
+            } else {
+              callback(contents.buffer);
+            }
+          });
+          return;
+        }
         Module['dataFileDownloads'] ??= {};
         fetch(packageName)
           .catch((cause) => Promise.reject(new Error(`Network Error: ${packageName}`, {cause}))) // If fetch fails, rewrite the error to include the failing URL & the cause.
@@ -214,18 +231,18 @@ Module['FS_createPath']("/wireshark", "wimaxasncp", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/wireshark/Acknowledgements.md", "start": 0, "end": 1544}, {"filename": "/wireshark/COPYING", "start": 1544, "end": 19636}, {"filename": "/wireshark/cfilters", "start": 19636, "end": 20218}, {"filename": "/wireshark/colorfilters", "start": 20218, "end": 22209}, {"filename": "/wireshark/console.lua", "start": 22209, "end": 24730}, {"filename": "/wireshark/dfilter_macros", "start": 24730, "end": 25028}, {"filename": "/wireshark/dfilters", "start": 25028, "end": 25682}, {"filename": "/wireshark/diameter/AlcatelLucent.xml", "start": 25682, "end": 27819}, {"filename": "/wireshark/diameter/Cisco.xml", "start": 27819, "end": 76499}, {"filename": "/wireshark/diameter/CiscoSystems.xml", "start": 76499, "end": 85544}, {"filename": "/wireshark/diameter/Custom.xml", "start": 85544, "end": 85881}, {"filename": "/wireshark/diameter/Ericsson.xml", "start": 85881, "end": 109674}, {"filename": "/wireshark/diameter/HP.xml", "start": 109674, "end": 111296}, {"filename": "/wireshark/diameter/Huawei.xml", "start": 111296, "end": 115724}, {"filename": "/wireshark/diameter/Inovar.xml", "start": 115724, "end": 118805}, {"filename": "/wireshark/diameter/Juniper.xml", "start": 118805, "end": 120625}, {"filename": "/wireshark/diameter/Metaswitch.xml", "start": 120625, "end": 124442}, {"filename": "/wireshark/diameter/Microsoft.xml", "start": 124442, "end": 125674}, {"filename": "/wireshark/diameter/Nokia.xml", "start": 125674, "end": 127256}, {"filename": "/wireshark/diameter/NokiaSolutionsAndNetworks.xml", "start": 127256, "end": 132080}, {"filename": "/wireshark/diameter/Oracle.xml", "start": 132080, "end": 132931}, {"filename": "/wireshark/diameter/Siemens.xml", "start": 132931, "end": 133571}, {"filename": "/wireshark/diameter/Starent.xml", "start": 133571, "end": 231424}, {"filename": "/wireshark/diameter/TGPP.xml", "start": 231424, "end": 322202}, {"filename": "/wireshark/diameter/TGPP2.xml", "start": 322202, "end": 327806}, {"filename": "/wireshark/diameter/Telefonica.xml", "start": 327806, "end": 339243}, {"filename": "/wireshark/diameter/VerizonWireless.xml", "start": 339243, "end": 342106}, {"filename": "/wireshark/diameter/Vodafone.xml", "start": 342106, "end": 345551}, {"filename": "/wireshark/diameter/chargecontrol.xml", "start": 345551, "end": 356078}, {"filename": "/wireshark/diameter/dictionary.dtd", "start": 356078, "end": 357945}, {"filename": "/wireshark/diameter/dictionary.xml", "start": 357945, "end": 761217}, {"filename": "/wireshark/diameter/eap.xml", "start": 761217, "end": 761770}, {"filename": "/wireshark/diameter/etsie2e4.xml", "start": 761770, "end": 777307}, {"filename": "/wireshark/diameter/mobileipv4.xml", "start": 777307, "end": 784108}, {"filename": "/wireshark/diameter/mobileipv6.xml", "start": 784108, "end": 786853}, {"filename": "/wireshark/diameter/nasreq.xml", "start": 786853, "end": 790798}, {"filename": "/wireshark/diameter/sip.xml", "start": 790798, "end": 797924}, {"filename": "/wireshark/diameter/sunping.xml", "start": 797924, "end": 798711}, {"filename": "/wireshark/dtd_gen.lua", "start": 798711, "end": 806408}, {"filename": "/wireshark/dtds/dc.dtd", "start": 806408, "end": 807189}, {"filename": "/wireshark/dtds/itunes.dtd", "start": 807189, "end": 807713}, {"filename": "/wireshark/dtds/mscml.dtd", "start": 807713, "end": 815254}, {"filename": "/wireshark/dtds/pocsettings.dtd", "start": 815254, "end": 816169}, {"filename": "/wireshark/dtds/presence.dtd", "start": 816169, "end": 816743}, {"filename": "/wireshark/dtds/reginfo.dtd", "start": 816743, "end": 817851}, {"filename": "/wireshark/dtds/rlmi.dtd", "start": 817851, "end": 818621}, {"filename": "/wireshark/dtds/rss.dtd", "start": 818621, "end": 821016}, {"filename": "/wireshark/dtds/smil.dtd", "start": 821016, "end": 828576}, {"filename": "/wireshark/dtds/watcherinfo.dtd", "start": 828576, "end": 829377}, {"filename": "/wireshark/dtds/xcap-caps.dtd", "start": 829377, "end": 829675}, {"filename": "/wireshark/dtds/xcap-error.dtd", "start": 829675, "end": 831248}, {"filename": "/wireshark/enterprises.tsv", "start": 831248, "end": 2466565}, {"filename": "/wireshark/gpl-2.0-standalone.html", "start": 2466565, "end": 2486571}, {"filename": "/wireshark/init.lua", "start": 2486571, "end": 2504293}, {"filename": "/wireshark/ipmap.html", "start": 2504293, "end": 2518221}, {"filename": "/wireshark/manuf", "start": 2518221, "end": 4606127}, {"filename": "/wireshark/pdml2html.xsl", "start": 4606127, "end": 4612530}, {"filename": "/wireshark/profiles/Bluetooth/colorfilters", "start": 4612530, "end": 4615666}, {"filename": "/wireshark/profiles/Bluetooth/preferences", "start": 4615666, "end": 4616056}, {"filename": "/wireshark/profiles/Classic/colorfilters", "start": 4616056, "end": 4617788}, {"filename": "/wireshark/profiles/No Reassembly/preferences", "start": 4617788, "end": 4622527}, {"filename": "/wireshark/radius/README.radius_dictionary", "start": 4622527, "end": 4625375}, {"filename": "/wireshark/radius/custom.includes", "start": 4625375, "end": 4625462}, {"filename": "/wireshark/radius/dictionary", "start": 4625462, "end": 4636249}, {"filename": "/wireshark/radius/dictionary.3com", "start": 4636249, "end": 4637748}, {"filename": "/wireshark/radius/dictionary.3gpp", "start": 4637748, "end": 4641414}, {"filename": "/wireshark/radius/dictionary.3gpp2", "start": 4641414, "end": 4656730}, {"filename": "/wireshark/radius/dictionary.acc", "start": 4656730, "end": 4667650}, {"filename": "/wireshark/radius/dictionary.acme", "start": 4667650, "end": 4677255}, {"filename": "/wireshark/radius/dictionary.actelis", "start": 4677255, "end": 4677680}, {"filename": "/wireshark/radius/dictionary.aerohive", "start": 4677680, "end": 4678505}, {"filename": "/wireshark/radius/dictionary.airespace", "start": 4678505, "end": 4680075}, {"filename": "/wireshark/radius/dictionary.alcatel", "start": 4680075, "end": 4683727}, {"filename": "/wireshark/radius/dictionary.alcatel-lucent.aaa", "start": 4683727, "end": 4687030}, {"filename": "/wireshark/radius/dictionary.alcatel.esam", "start": 4687030, "end": 4694607}, {"filename": "/wireshark/radius/dictionary.alcatel.sr", "start": 4694607, "end": 4697352}, {"filename": "/wireshark/radius/dictionary.alteon", "start": 4697352, "end": 4698316}, {"filename": "/wireshark/radius/dictionary.altiga", "start": 4698316, "end": 4705760}, {"filename": "/wireshark/radius/dictionary.alvarion", "start": 4705760, "end": 4717662}, {"filename": "/wireshark/radius/dictionary.alvarion.wimax.v2_2", "start": 4717662, "end": 4718876}, {"filename": "/wireshark/radius/dictionary.apc", "start": 4718876, "end": 4720010}, {"filename": "/wireshark/radius/dictionary.aptilo", "start": 4720010, "end": 4726030}, {"filename": "/wireshark/radius/dictionary.aptis", "start": 4726030, "end": 4734479}, {"filename": "/wireshark/radius/dictionary.arbor", "start": 4734479, "end": 4734974}, {"filename": "/wireshark/radius/dictionary.aruba", "start": 4734974, "end": 4737742}, {"filename": "/wireshark/radius/dictionary.ascend", "start": 4737742, "end": 4797227}, {"filename": "/wireshark/radius/dictionary.asn", "start": 4797227, "end": 4800332}, {"filename": "/wireshark/radius/dictionary.audiocodes", "start": 4800332, "end": 4800963}, {"filename": "/wireshark/radius/dictionary.avaya", "start": 4800963, "end": 4801897}, {"filename": "/wireshark/radius/dictionary.azaire", "start": 4801897, "end": 4803497}, {"filename": "/wireshark/radius/dictionary.bay", "start": 4803497, "end": 4815404}, {"filename": "/wireshark/radius/dictionary.bintec", "start": 4815404, "end": 4817025}, {"filename": "/wireshark/radius/dictionary.bluecoat", "start": 4817025, "end": 4817760}, {"filename": "/wireshark/radius/dictionary.bristol", "start": 4817760, "end": 4818244}, {"filename": "/wireshark/radius/dictionary.broadsoft", "start": 4818244, "end": 4835895}, {"filename": "/wireshark/radius/dictionary.brocade", "start": 4835895, "end": 4836583}, {"filename": "/wireshark/radius/dictionary.bskyb", "start": 4836583, "end": 4837240}, {"filename": "/wireshark/radius/dictionary.bt", "start": 4837240, "end": 4837644}, {"filename": "/wireshark/radius/dictionary.cablelabs", "start": 4837644, "end": 4848190}, {"filename": "/wireshark/radius/dictionary.cabletron", "start": 4848190, "end": 4849062}, {"filename": "/wireshark/radius/dictionary.camiant", "start": 4849062, "end": 4849650}, {"filename": "/wireshark/radius/dictionary.chillispot", "start": 4849650, "end": 4851066}, {"filename": "/wireshark/radius/dictionary.cisco", "start": 4851066, "end": 4860339}, {"filename": "/wireshark/radius/dictionary.cisco.asa", "start": 4860339, "end": 4875169}, {"filename": "/wireshark/radius/dictionary.cisco.bbsm", "start": 4875169, "end": 4875572}, {"filename": "/wireshark/radius/dictionary.cisco.vpn3000", "start": 4875572, "end": 4891677}, {"filename": "/wireshark/radius/dictionary.cisco.vpn5000", "start": 4891677, "end": 4892351}, {"filename": "/wireshark/radius/dictionary.citrix", "start": 4892351, "end": 4892987}, {"filename": "/wireshark/radius/dictionary.clavister", "start": 4892987, "end": 4893443}, {"filename": "/wireshark/radius/dictionary.cnergee", "start": 4893443, "end": 4894938}, {"filename": "/wireshark/radius/dictionary.colubris", "start": 4894938, "end": 4895253}, {"filename": "/wireshark/radius/dictionary.columbia_university", "start": 4895253, "end": 4895894}, {"filename": "/wireshark/radius/dictionary.compat", "start": 4895894, "end": 4897408}, {"filename": "/wireshark/radius/dictionary.compatible", "start": 4897408, "end": 4898001}, {"filename": "/wireshark/radius/dictionary.cosine", "start": 4898001, "end": 4898730}, {"filename": "/wireshark/radius/dictionary.dante", "start": 4898730, "end": 4899176}, {"filename": "/wireshark/radius/dictionary.dellemc", "start": 4899176, "end": 4899618}, {"filename": "/wireshark/radius/dictionary.dhcp", "start": 4899618, "end": 4917266}, {"filename": "/wireshark/radius/dictionary.digium", "start": 4917266, "end": 4918511}, {"filename": "/wireshark/radius/dictionary.dlink", "start": 4918511, "end": 4919586}, {"filename": "/wireshark/radius/dictionary.dragonwave", "start": 4919586, "end": 4920383}, {"filename": "/wireshark/radius/dictionary.efficientip", "start": 4920383, "end": 4921363}, {"filename": "/wireshark/radius/dictionary.eltex", "start": 4921363, "end": 4922212}, {"filename": "/wireshark/radius/dictionary.enterasys", "start": 4922212, "end": 4924462}, {"filename": "/wireshark/radius/dictionary.epygi", "start": 4924462, "end": 4928804}, {"filename": "/wireshark/radius/dictionary.equallogic", "start": 4928804, "end": 4930310}, {"filename": "/wireshark/radius/dictionary.ericsson", "start": 4930310, "end": 4936616}, {"filename": "/wireshark/radius/dictionary.ericsson.ab", "start": 4936616, "end": 4964219}, {"filename": "/wireshark/radius/dictionary.ericsson.packet.core.networks", "start": 4964219, "end": 4964521}, {"filename": "/wireshark/radius/dictionary.extreme", "start": 4964521, "end": 4967138}, {"filename": "/wireshark/radius/dictionary.f5", "start": 4967138, "end": 4968953}, {"filename": "/wireshark/radius/dictionary.fdxtended", "start": 4968953, "end": 4969512}, {"filename": "/wireshark/radius/dictionary.fortinet", "start": 4969512, "end": 4970256}, {"filename": "/wireshark/radius/dictionary.foundry", "start": 4970256, "end": 4972169}, {"filename": "/wireshark/radius/dictionary.freedhcp", "start": 4972169, "end": 4989566}, {"filename": "/wireshark/radius/dictionary.freeradius", "start": 4989566, "end": 4995195}, {"filename": "/wireshark/radius/dictionary.freeradius.internal", "start": 4995195, "end": 5022066}, {"filename": "/wireshark/radius/dictionary.freeswitch", "start": 5022066, "end": 5026671}, {"filename": "/wireshark/radius/dictionary.gandalf", "start": 5026671, "end": 5030337}, {"filename": "/wireshark/radius/dictionary.garderos", "start": 5030337, "end": 5030845}, {"filename": "/wireshark/radius/dictionary.gemtek", "start": 5030845, "end": 5031397}, {"filename": "/wireshark/radius/dictionary.h3c", "start": 5031397, "end": 5034667}, {"filename": "/wireshark/radius/dictionary.hp", "start": 5034667, "end": 5037161}, {"filename": "/wireshark/radius/dictionary.huawei", "start": 5037161, "end": 5046427}, {"filename": "/wireshark/radius/dictionary.iana", "start": 5046427, "end": 5047612}, {"filename": "/wireshark/radius/dictionary.identity_engines", "start": 5047612, "end": 5047987}, {"filename": "/wireshark/radius/dictionary.iea", "start": 5047987, "end": 5049009}, {"filename": "/wireshark/radius/dictionary.infoblox", "start": 5049009, "end": 5049495}, {"filename": "/wireshark/radius/dictionary.infonet", "start": 5049495, "end": 5051044}, {"filename": "/wireshark/radius/dictionary.ipunplugged", "start": 5051044, "end": 5051852}, {"filename": "/wireshark/radius/dictionary.issanni", "start": 5051852, "end": 5053158}, {"filename": "/wireshark/radius/dictionary.itk", "start": 5053158, "end": 5054686}, {"filename": "/wireshark/radius/dictionary.jradius", "start": 5054686, "end": 5055103}, {"filename": "/wireshark/radius/dictionary.juniper", "start": 5055103, "end": 5057260}, {"filename": "/wireshark/radius/dictionary.karlnet", "start": 5057260, "end": 5160039}, {"filename": "/wireshark/radius/dictionary.kineto", "start": 5160039, "end": 5164683}, {"filename": "/wireshark/radius/dictionary.lancom", "start": 5164683, "end": 5166060}, {"filename": "/wireshark/radius/dictionary.livingston", "start": 5166060, "end": 5168286}, {"filename": "/wireshark/radius/dictionary.localweb", "start": 5168286, "end": 5169379}, {"filename": "/wireshark/radius/dictionary.lucent", "start": 5169379, "end": 5190548}, {"filename": "/wireshark/radius/dictionary.manzara", "start": 5190548, "end": 5191486}, {"filename": "/wireshark/radius/dictionary.meinberg", "start": 5191486, "end": 5192097}, {"filename": "/wireshark/radius/dictionary.meraki", "start": 5192097, "end": 5192429}, {"filename": "/wireshark/radius/dictionary.merit", "start": 5192429, "end": 5192760}, {"filename": "/wireshark/radius/dictionary.meru", "start": 5192760, "end": 5193071}, {"filename": "/wireshark/radius/dictionary.microsemi", "start": 5193071, "end": 5193639}, {"filename": "/wireshark/radius/dictionary.microsoft", "start": 5193639, "end": 5199927}, {"filename": "/wireshark/radius/dictionary.mikrotik", "start": 5199927, "end": 5202075}, {"filename": "/wireshark/radius/dictionary.motorola", "start": 5202075, "end": 5205148}, {"filename": "/wireshark/radius/dictionary.motorola.wimax", "start": 5205148, "end": 5206468}, {"filename": "/wireshark/radius/dictionary.navini", "start": 5206468, "end": 5206847}, {"filename": "/wireshark/radius/dictionary.netscreen", "start": 5206847, "end": 5207798}, {"filename": "/wireshark/radius/dictionary.networkphysics", "start": 5207798, "end": 5208300}, {"filename": "/wireshark/radius/dictionary.nexans", "start": 5208300, "end": 5208904}, {"filename": "/wireshark/radius/dictionary.nokia", "start": 5208904, "end": 5210261}, {"filename": "/wireshark/radius/dictionary.nokia.conflict", "start": 5210261, "end": 5211320}, {"filename": "/wireshark/radius/dictionary.nomadix", "start": 5211320, "end": 5212417}, {"filename": "/wireshark/radius/dictionary.nortel", "start": 5212417, "end": 5214772}, {"filename": "/wireshark/radius/dictionary.ntua", "start": 5214772, "end": 5216108}, {"filename": "/wireshark/radius/dictionary.openser", "start": 5216108, "end": 5217507}, {"filename": "/wireshark/radius/dictionary.packeteer", "start": 5217507, "end": 5218121}, {"filename": "/wireshark/radius/dictionary.paloalto", "start": 5218121, "end": 5218748}, {"filename": "/wireshark/radius/dictionary.patton", "start": 5218748, "end": 5227269}, {"filename": "/wireshark/radius/dictionary.perle", "start": 5227269, "end": 5249969}, {"filename": "/wireshark/radius/dictionary.propel", "start": 5249969, "end": 5250460}, {"filename": "/wireshark/radius/dictionary.prosoft", "start": 5250460, "end": 5251783}, {"filename": "/wireshark/radius/dictionary.proxim", "start": 5251783, "end": 5254944}, {"filename": "/wireshark/radius/dictionary.purewave", "start": 5254944, "end": 5256489}, {"filename": "/wireshark/radius/dictionary.quiconnect", "start": 5256489, "end": 5257016}, {"filename": "/wireshark/radius/dictionary.quintum", "start": 5257016, "end": 5258564}, {"filename": "/wireshark/radius/dictionary.redcreek", "start": 5258564, "end": 5259239}, {"filename": "/wireshark/radius/dictionary.rfc2865", "start": 5259239, "end": 5263348}, {"filename": "/wireshark/radius/dictionary.rfc2866", "start": 5263348, "end": 5265197}, {"filename": "/wireshark/radius/dictionary.rfc2867", "start": 5265197, "end": 5265769}, {"filename": "/wireshark/radius/dictionary.rfc2868", "start": 5265769, "end": 5267487}, {"filename": "/wireshark/radius/dictionary.rfc2869", "start": 5267487, "end": 5268604}, {"filename": "/wireshark/radius/dictionary.rfc3162", "start": 5268604, "end": 5269073}, {"filename": "/wireshark/radius/dictionary.rfc3576", "start": 5269073, "end": 5270112}, {"filename": "/wireshark/radius/dictionary.rfc3580", "start": 5270112, "end": 5270631}, {"filename": "/wireshark/radius/dictionary.rfc4072", "start": 5270631, "end": 5270779}, {"filename": "/wireshark/radius/dictionary.rfc4372", "start": 5270779, "end": 5270936}, {"filename": "/wireshark/radius/dictionary.rfc4603", "start": 5270936, "end": 5271495}, {"filename": "/wireshark/radius/dictionary.rfc4675", "start": 5271495, "end": 5272281}, {"filename": "/wireshark/radius/dictionary.rfc4679", "start": 5272281, "end": 5274206}, {"filename": "/wireshark/radius/dictionary.rfc4818", "start": 5274206, "end": 5274636}, {"filename": "/wireshark/radius/dictionary.rfc4849", "start": 5274636, "end": 5274897}, {"filename": "/wireshark/radius/dictionary.rfc5090", "start": 5274897, "end": 5275894}, {"filename": "/wireshark/radius/dictionary.rfc5176", "start": 5275894, "end": 5276227}, {"filename": "/wireshark/radius/dictionary.rfc5447", "start": 5276227, "end": 5276643}, {"filename": "/wireshark/radius/dictionary.rfc5580", "start": 5276643, "end": 5277805}, {"filename": "/wireshark/radius/dictionary.rfc5607", "start": 5277805, "end": 5278736}, {"filename": "/wireshark/radius/dictionary.rfc5904", "start": 5278736, "end": 5279341}, {"filename": "/wireshark/radius/dictionary.rfc6519", "start": 5279341, "end": 5279607}, {"filename": "/wireshark/radius/dictionary.rfc6572", "start": 5279607, "end": 5280735}, {"filename": "/wireshark/radius/dictionary.rfc6677", "start": 5280735, "end": 5281312}, {"filename": "/wireshark/radius/dictionary.rfc6911", "start": 5281312, "end": 5281724}, {"filename": "/wireshark/radius/dictionary.rfc6929", "start": 5281724, "end": 5282683}, {"filename": "/wireshark/radius/dictionary.rfc6930", "start": 5282683, "end": 5283038}, {"filename": "/wireshark/radius/dictionary.rfc7055", "start": 5283038, "end": 5283416}, {"filename": "/wireshark/radius/dictionary.rfc7155", "start": 5283416, "end": 5283803}, {"filename": "/wireshark/radius/dictionary.rfc7268", "start": 5283803, "end": 5286167}, {"filename": "/wireshark/radius/dictionary.rfc7499", "start": 5286167, "end": 5286634}, {"filename": "/wireshark/radius/dictionary.rfc7930", "start": 5286634, "end": 5286908}, {"filename": "/wireshark/radius/dictionary.riverbed", "start": 5286908, "end": 5287505}, {"filename": "/wireshark/radius/dictionary.riverstone", "start": 5287505, "end": 5288642}, {"filename": "/wireshark/radius/dictionary.roaringpenguin", "start": 5288642, "end": 5289385}, {"filename": "/wireshark/radius/dictionary.ruckus", "start": 5289385, "end": 5294490}, {"filename": "/wireshark/radius/dictionary.ruggedcom", "start": 5294490, "end": 5294695}, {"filename": "/wireshark/radius/dictionary.sangoma", "start": 5294695, "end": 5299117}, {"filename": "/wireshark/radius/dictionary.sg", "start": 5299117, "end": 5305129}, {"filename": "/wireshark/radius/dictionary.shasta", "start": 5305129, "end": 5305685}, {"filename": "/wireshark/radius/dictionary.shiva", "start": 5305685, "end": 5309909}, {"filename": "/wireshark/radius/dictionary.siemens", "start": 5309909, "end": 5310691}, {"filename": "/wireshark/radius/dictionary.slipstream", "start": 5310691, "end": 5311227}, {"filename": "/wireshark/radius/dictionary.sofaware", "start": 5311227, "end": 5312367}, {"filename": "/wireshark/radius/dictionary.sonicwall", "start": 5312367, "end": 5315088}, {"filename": "/wireshark/radius/dictionary.springtide", "start": 5315088, "end": 5316153}, {"filename": "/wireshark/radius/dictionary.starent", "start": 5316153, "end": 5377025}, {"filename": "/wireshark/radius/dictionary.starent.vsa1", "start": 5377025, "end": 5432741}, {"filename": "/wireshark/radius/dictionary.surfnet", "start": 5432741, "end": 5433245}, {"filename": "/wireshark/radius/dictionary.symbol", "start": 5433245, "end": 5436468}, {"filename": "/wireshark/radius/dictionary.t_systems_nova", "start": 5436468, "end": 5437730}, {"filename": "/wireshark/radius/dictionary.telebit", "start": 5437730, "end": 5438213}, {"filename": "/wireshark/radius/dictionary.telkom", "start": 5438213, "end": 5439217}, {"filename": "/wireshark/radius/dictionary.terena", "start": 5439217, "end": 5439575}, {"filename": "/wireshark/radius/dictionary.trapeze", "start": 5439575, "end": 5441019}, {"filename": "/wireshark/radius/dictionary.travelping", "start": 5441019, "end": 5444185}, {"filename": "/wireshark/radius/dictionary.tropos", "start": 5444185, "end": 5446350}, {"filename": "/wireshark/radius/dictionary.ukerna", "start": 5446350, "end": 5447290}, {"filename": "/wireshark/radius/dictionary.unisphere", "start": 5447290, "end": 5462671}, {"filename": "/wireshark/radius/dictionary.unix", "start": 5462671, "end": 5463124}, {"filename": "/wireshark/radius/dictionary.usr", "start": 5463124, "end": 5537242}, {"filename": "/wireshark/radius/dictionary.utstarcom", "start": 5537242, "end": 5538908}, {"filename": "/wireshark/radius/dictionary.valemount", "start": 5538908, "end": 5539641}, {"filename": "/wireshark/radius/dictionary.verizon", "start": 5539641, "end": 5540454}, {"filename": "/wireshark/radius/dictionary.versanet", "start": 5540454, "end": 5542598}, {"filename": "/wireshark/radius/dictionary.vqp", "start": 5542598, "end": 5545706}, {"filename": "/wireshark/radius/dictionary.walabi", "start": 5545706, "end": 5546670}, {"filename": "/wireshark/radius/dictionary.waverider", "start": 5546670, "end": 5548634}, {"filename": "/wireshark/radius/dictionary.wichorus", "start": 5548634, "end": 5549207}, {"filename": "/wireshark/radius/dictionary.wimax", "start": 5549207, "end": 5565476}, {"filename": "/wireshark/radius/dictionary.wimax.alvarion", "start": 5565476, "end": 5584887}, {"filename": "/wireshark/radius/dictionary.wimax.wichorus", "start": 5584887, "end": 5600312}, {"filename": "/wireshark/radius/dictionary.wispr", "start": 5600312, "end": 5601341}, {"filename": "/wireshark/radius/dictionary.xedia", "start": 5601341, "end": 5602166}, {"filename": "/wireshark/radius/dictionary.xylan", "start": 5602166, "end": 5603707}, {"filename": "/wireshark/radius/dictionary.yubico", "start": 5603707, "end": 5604349}, {"filename": "/wireshark/radius/dictionary.zeus", "start": 5604349, "end": 5604551}, {"filename": "/wireshark/radius/dictionary.zte", "start": 5604551, "end": 5607147}, {"filename": "/wireshark/radius/dictionary.zyxel", "start": 5607147, "end": 5607912}, {"filename": "/wireshark/services", "start": 5607912, "end": 5877761}, {"filename": "/wireshark/smi_modules", "start": 5877761, "end": 5878076}, {"filename": "/wireshark/tpncp/tpncp.dat", "start": 5878076, "end": 6528250}, {"filename": "/wireshark/wimaxasncp/dictionary.dtd", "start": 6528250, "end": 6528557}, {"filename": "/wireshark/wimaxasncp/dictionary.xml", "start": 6528557, "end": 6620048}, {"filename": "/wireshark/wka", "start": 6620048, "end": 6631269}, {"filename": "/wireshark/ws.css", "start": 6631269, "end": 6671939}], "remote_package_size": 6671939});
+    loadPackage({"files": [{"filename": "/wireshark/cfilters", "start": 0, "end": 744}, {"filename": "/wireshark/colorfilters", "start": 744, "end": 2995}, {"filename": "/wireshark/dfilters", "start": 2995, "end": 3811}, {"filename": "/wireshark/diameter/AlcatelLucent.xml", "start": 3811, "end": 5948}, {"filename": "/wireshark/diameter/Cisco.xml", "start": 5948, "end": 54628}, {"filename": "/wireshark/diameter/CiscoSystems.xml", "start": 54628, "end": 63934}, {"filename": "/wireshark/diameter/Custom.xml", "start": 63934, "end": 64271}, {"filename": "/wireshark/diameter/Ericsson.xml", "start": 64271, "end": 88064}, {"filename": "/wireshark/diameter/HP.xml", "start": 88064, "end": 89686}, {"filename": "/wireshark/diameter/Huawei.xml", "start": 89686, "end": 94114}, {"filename": "/wireshark/diameter/Inovar.xml", "start": 94114, "end": 97195}, {"filename": "/wireshark/diameter/Juniper.xml", "start": 97195, "end": 99015}, {"filename": "/wireshark/diameter/Metaswitch.xml", "start": 99015, "end": 102832}, {"filename": "/wireshark/diameter/Microsoft.xml", "start": 102832, "end": 104064}, {"filename": "/wireshark/diameter/Nokia.xml", "start": 104064, "end": 105646}, {"filename": "/wireshark/diameter/NokiaSolutionsAndNetworks.xml", "start": 105646, "end": 110470}, {"filename": "/wireshark/diameter/Oracle.xml", "start": 110470, "end": 111321}, {"filename": "/wireshark/diameter/Siemens.xml", "start": 111321, "end": 111961}, {"filename": "/wireshark/diameter/Starent.xml", "start": 111961, "end": 209808}, {"filename": "/wireshark/diameter/TGPP.xml", "start": 209808, "end": 300793}, {"filename": "/wireshark/diameter/TGPP2.xml", "start": 300793, "end": 306397}, {"filename": "/wireshark/diameter/Telefonica.xml", "start": 306397, "end": 317834}, {"filename": "/wireshark/diameter/Travelping.xml", "start": 317834, "end": 319111}, {"filename": "/wireshark/diameter/VerizonWireless.xml", "start": 319111, "end": 322225}, {"filename": "/wireshark/diameter/Vodafone.xml", "start": 322225, "end": 325670}, {"filename": "/wireshark/diameter/chargecontrol.xml", "start": 325670, "end": 336197}, {"filename": "/wireshark/diameter/dictionary.dtd", "start": 336197, "end": 338064}, {"filename": "/wireshark/diameter/dictionary.xml", "start": 338064, "end": 744876}, {"filename": "/wireshark/diameter/eap.xml", "start": 744876, "end": 745429}, {"filename": "/wireshark/diameter/etsie2e4.xml", "start": 745429, "end": 760966}, {"filename": "/wireshark/diameter/mobileipv4.xml", "start": 760966, "end": 767767}, {"filename": "/wireshark/diameter/mobileipv6.xml", "start": 767767, "end": 770512}, {"filename": "/wireshark/diameter/nasreq.xml", "start": 770512, "end": 774457}, {"filename": "/wireshark/diameter/sip.xml", "start": 774457, "end": 781583}, {"filename": "/wireshark/diameter/sunping.xml", "start": 781583, "end": 782370}, {"filename": "/wireshark/dmacros", "start": 782370, "end": 782691}, {"filename": "/wireshark/dtds/dc.dtd", "start": 782691, "end": 783472}, {"filename": "/wireshark/dtds/itunes.dtd", "start": 783472, "end": 783996}, {"filename": "/wireshark/dtds/mscml.dtd", "start": 783996, "end": 791537}, {"filename": "/wireshark/dtds/pocsettings.dtd", "start": 791537, "end": 792452}, {"filename": "/wireshark/dtds/presence.dtd", "start": 792452, "end": 793026}, {"filename": "/wireshark/dtds/reginfo.dtd", "start": 793026, "end": 794134}, {"filename": "/wireshark/dtds/rlmi.dtd", "start": 794134, "end": 794904}, {"filename": "/wireshark/dtds/rss.dtd", "start": 794904, "end": 797299}, {"filename": "/wireshark/dtds/smil.dtd", "start": 797299, "end": 804859}, {"filename": "/wireshark/dtds/watcherinfo.dtd", "start": 804859, "end": 805660}, {"filename": "/wireshark/dtds/xcap-caps.dtd", "start": 805660, "end": 805958}, {"filename": "/wireshark/dtds/xcap-error.dtd", "start": 805958, "end": 807531}, {"filename": "/wireshark/ipmap.html", "start": 807531, "end": 821459}, {"filename": "/wireshark/profiles/Bluetooth/colorfilters", "start": 821459, "end": 824861}, {"filename": "/wireshark/profiles/Bluetooth/preferences", "start": 824861, "end": 825251}, {"filename": "/wireshark/profiles/Classic/colorfilters", "start": 825251, "end": 827242}, {"filename": "/wireshark/profiles/No Reassembly/preferences", "start": 827242, "end": 832277}, {"filename": "/wireshark/radius/.editorconfig", "start": 832277, "end": 832368}, {"filename": "/wireshark/radius/README.radius_dictionary", "start": 832368, "end": 835910}, {"filename": "/wireshark/radius/custom.includes", "start": 835910, "end": 835997}, {"filename": "/wireshark/radius/dictionary", "start": 835997, "end": 847170}, {"filename": "/wireshark/radius/dictionary.3com", "start": 847170, "end": 848761}, {"filename": "/wireshark/radius/dictionary.3gpp", "start": 848761, "end": 852526}, {"filename": "/wireshark/radius/dictionary.3gpp2", "start": 852526, "end": 868901}, {"filename": "/wireshark/radius/dictionary.5x9", "start": 868901, "end": 870067}, {"filename": "/wireshark/radius/dictionary.acc", "start": 870067, "end": 881062}, {"filename": "/wireshark/radius/dictionary.acme", "start": 881062, "end": 891227}, {"filename": "/wireshark/radius/dictionary.actelis", "start": 891227, "end": 891746}, {"filename": "/wireshark/radius/dictionary.adtran", "start": 891746, "end": 892204}, {"filename": "/wireshark/radius/dictionary.adva", "start": 892204, "end": 893364}, {"filename": "/wireshark/radius/dictionary.aerohive", "start": 893364, "end": 896017}, {"filename": "/wireshark/radius/dictionary.airespace", "start": 896017, "end": 897338}, {"filename": "/wireshark/radius/dictionary.alcatel", "start": 897338, "end": 901084}, {"filename": "/wireshark/radius/dictionary.alcatel-lucent.aaa", "start": 901084, "end": 904481}, {"filename": "/wireshark/radius/dictionary.alcatel.esam", "start": 904481, "end": 912150}, {"filename": "/wireshark/radius/dictionary.alcatel.sr", "start": 912150, "end": 926614}, {"filename": "/wireshark/radius/dictionary.alphion", "start": 926614, "end": 929368}, {"filename": "/wireshark/radius/dictionary.alteon", "start": 929368, "end": 930401}, {"filename": "/wireshark/radius/dictionary.altiga", "start": 930401, "end": 937937}, {"filename": "/wireshark/radius/dictionary.alvarion", "start": 937937, "end": 949933}, {"filename": "/wireshark/radius/dictionary.alvarion.wimax.v2_2", "start": 949933, "end": 951241}, {"filename": "/wireshark/radius/dictionary.apc", "start": 951241, "end": 952507}, {"filename": "/wireshark/radius/dictionary.aptilo", "start": 952507, "end": 958689}, {"filename": "/wireshark/radius/dictionary.aptis", "start": 958689, "end": 967230}, {"filename": "/wireshark/radius/dictionary.arbor", "start": 967230, "end": 967819}, {"filename": "/wireshark/radius/dictionary.arista", "start": 967819, "end": 968806}, {"filename": "/wireshark/radius/dictionary.aruba", "start": 968806, "end": 974014}, {"filename": "/wireshark/radius/dictionary.ascend", "start": 974014, "end": 1013051}, {"filename": "/wireshark/radius/dictionary.ascend.illegal", "start": 1013051, "end": 1033461}, {"filename": "/wireshark/radius/dictionary.asn", "start": 1033461, "end": 1036660}, {"filename": "/wireshark/radius/dictionary.audiocodes", "start": 1036660, "end": 1037385}, {"filename": "/wireshark/radius/dictionary.avaya", "start": 1037385, "end": 1038411}, {"filename": "/wireshark/radius/dictionary.azaire", "start": 1038411, "end": 1040105}, {"filename": "/wireshark/radius/dictionary.bay", "start": 1040105, "end": 1052113}, {"filename": "/wireshark/radius/dictionary.bigswitch", "start": 1052113, "end": 1052781}, {"filename": "/wireshark/radius/dictionary.bintec", "start": 1052781, "end": 1054494}, {"filename": "/wireshark/radius/dictionary.bluecoat", "start": 1054494, "end": 1055323}, {"filename": "/wireshark/radius/dictionary.boingo", "start": 1055323, "end": 1056938}, {"filename": "/wireshark/radius/dictionary.bristol", "start": 1056938, "end": 1057491}, {"filename": "/wireshark/radius/dictionary.broadsoft", "start": 1057491, "end": 1075272}, {"filename": "/wireshark/radius/dictionary.brocade", "start": 1075272, "end": 1076052}, {"filename": "/wireshark/radius/dictionary.bskyb", "start": 1076052, "end": 1076901}, {"filename": "/wireshark/radius/dictionary.bt", "start": 1076901, "end": 1077399}, {"filename": "/wireshark/radius/dictionary.cablelabs", "start": 1077399, "end": 1088038}, {"filename": "/wireshark/radius/dictionary.cabletron", "start": 1088038, "end": 1089002}, {"filename": "/wireshark/radius/dictionary.calix", "start": 1089002, "end": 1090071}, {"filename": "/wireshark/radius/dictionary.cambium", "start": 1090071, "end": 1093008}, {"filename": "/wireshark/radius/dictionary.camiant", "start": 1093008, "end": 1093758}, {"filename": "/wireshark/radius/dictionary.centec", "start": 1093758, "end": 1094141}, {"filename": "/wireshark/radius/dictionary.checkpoint", "start": 1094141, "end": 1094525}, {"filename": "/wireshark/radius/dictionary.chillispot", "start": 1094525, "end": 1096035}, {"filename": "/wireshark/radius/dictionary.ciena", "start": 1096035, "end": 1097222}, {"filename": "/wireshark/radius/dictionary.cisco", "start": 1097222, "end": 1106248}, {"filename": "/wireshark/radius/dictionary.cisco.asa", "start": 1106248, "end": 1121170}, {"filename": "/wireshark/radius/dictionary.cisco.bbsm", "start": 1121170, "end": 1121665}, {"filename": "/wireshark/radius/dictionary.cisco.vpn3000", "start": 1121665, "end": 1137862}, {"filename": "/wireshark/radius/dictionary.cisco.vpn5000", "start": 1137862, "end": 1138628}, {"filename": "/wireshark/radius/dictionary.citrix", "start": 1138628, "end": 1139358}, {"filename": "/wireshark/radius/dictionary.ckey", "start": 1139358, "end": 1140796}, {"filename": "/wireshark/radius/dictionary.clavister", "start": 1140796, "end": 1141346}, {"filename": "/wireshark/radius/dictionary.cnergee", "start": 1141346, "end": 1143198}, {"filename": "/wireshark/radius/dictionary.colubris", "start": 1143198, "end": 1143524}, {"filename": "/wireshark/radius/dictionary.columbia_university", "start": 1143524, "end": 1144293}, {"filename": "/wireshark/radius/dictionary.compat", "start": 1144293, "end": 1145899}, {"filename": "/wireshark/radius/dictionary.compatible", "start": 1145899, "end": 1146584}, {"filename": "/wireshark/radius/dictionary.cosine", "start": 1146584, "end": 1147407}, {"filename": "/wireshark/radius/dictionary.covaro", "start": 1147407, "end": 1148551}, {"filename": "/wireshark/radius/dictionary.dante", "start": 1148551, "end": 1149091}, {"filename": "/wireshark/radius/dictionary.dellemc", "start": 1149091, "end": 1149625}, {"filename": "/wireshark/radius/dictionary.digium", "start": 1149625, "end": 1150964}, {"filename": "/wireshark/radius/dictionary.dlink", "start": 1150964, "end": 1152133}, {"filename": "/wireshark/radius/dictionary.dragonwave", "start": 1152133, "end": 1153024}, {"filename": "/wireshark/radius/dictionary.efficientip", "start": 1153024, "end": 1154098}, {"filename": "/wireshark/radius/dictionary.eleven", "start": 1154098, "end": 1155250}, {"filename": "/wireshark/radius/dictionary.eltex", "start": 1155250, "end": 1156170}, {"filename": "/wireshark/radius/dictionary.enterasys", "start": 1156170, "end": 1158420}, {"filename": "/wireshark/radius/dictionary.epygi", "start": 1158420, "end": 1162833}, {"filename": "/wireshark/radius/dictionary.equallogic", "start": 1162833, "end": 1164406}, {"filename": "/wireshark/radius/dictionary.ericsson", "start": 1164406, "end": 1170701}, {"filename": "/wireshark/radius/dictionary.ericsson.ab", "start": 1170701, "end": 1188630}, {"filename": "/wireshark/radius/dictionary.ericsson.packet.core.networks", "start": 1188630, "end": 1189047}, {"filename": "/wireshark/radius/dictionary.erx", "start": 1189047, "end": 1206149}, {"filename": "/wireshark/radius/dictionary.extreme", "start": 1206149, "end": 1208783}, {"filename": "/wireshark/radius/dictionary.f5", "start": 1208783, "end": 1210692}, {"filename": "/wireshark/radius/dictionary.fdxtended", "start": 1210692, "end": 1211428}, {"filename": "/wireshark/radius/dictionary.force10", "start": 1211428, "end": 1211765}, {"filename": "/wireshark/radius/dictionary.fortinet", "start": 1211765, "end": 1213831}, {"filename": "/wireshark/radius/dictionary.foundry", "start": 1213831, "end": 1216354}, {"filename": "/wireshark/radius/dictionary.freedhcp", "start": 1216354, "end": 1233845}, {"filename": "/wireshark/radius/dictionary.freeradius", "start": 1233845, "end": 1247317}, {"filename": "/wireshark/radius/dictionary.freeradius.evs5", "start": 1247317, "end": 1247981}, {"filename": "/wireshark/radius/dictionary.freeradius.internal", "start": 1247981, "end": 1277443}, {"filename": "/wireshark/radius/dictionary.freeswitch", "start": 1277443, "end": 1282114}, {"filename": "/wireshark/radius/dictionary.gandalf", "start": 1282114, "end": 1285817}, {"filename": "/wireshark/radius/dictionary.garderos", "start": 1285817, "end": 1286417}, {"filename": "/wireshark/radius/dictionary.gemtek", "start": 1286417, "end": 1287015}, {"filename": "/wireshark/radius/dictionary.h3c", "start": 1287015, "end": 1290634}, {"filename": "/wireshark/radius/dictionary.hillstone", "start": 1290634, "end": 1292605}, {"filename": "/wireshark/radius/dictionary.hp", "start": 1292605, "end": 1295700}, {"filename": "/wireshark/radius/dictionary.huawei", "start": 1295700, "end": 1305040}, {"filename": "/wireshark/radius/dictionary.iana", "start": 1305040, "end": 1306411}, {"filename": "/wireshark/radius/dictionary.identity_engines", "start": 1306411, "end": 1306786}, {"filename": "/wireshark/radius/dictionary.iea", "start": 1306786, "end": 1307900}, {"filename": "/wireshark/radius/dictionary.infinera", "start": 1307900, "end": 1308242}, {"filename": "/wireshark/radius/dictionary.infoblox", "start": 1308242, "end": 1308888}, {"filename": "/wireshark/radius/dictionary.infonet", "start": 1308888, "end": 1310506}, {"filename": "/wireshark/radius/dictionary.ipunplugged", "start": 1310506, "end": 1311408}, {"filename": "/wireshark/radius/dictionary.issanni", "start": 1311408, "end": 1312808}, {"filename": "/wireshark/radius/dictionary.itk", "start": 1312808, "end": 1314428}, {"filename": "/wireshark/radius/dictionary.jradius", "start": 1314428, "end": 1314845}, {"filename": "/wireshark/radius/dictionary.juniper", "start": 1314845, "end": 1317637}, {"filename": "/wireshark/radius/dictionary.karlnet", "start": 1317637, "end": 1419776}, {"filename": "/wireshark/radius/dictionary.kineto", "start": 1419776, "end": 1424491}, {"filename": "/wireshark/radius/dictionary.lancom", "start": 1424491, "end": 1426024}, {"filename": "/wireshark/radius/dictionary.lantronix", "start": 1426024, "end": 1426394}, {"filename": "/wireshark/radius/dictionary.livingston", "start": 1426394, "end": 1428592}, {"filename": "/wireshark/radius/dictionary.localweb", "start": 1428592, "end": 1429779}, {"filename": "/wireshark/radius/dictionary.lucent", "start": 1429779, "end": 1451042}, {"filename": "/wireshark/radius/dictionary.manzara", "start": 1451042, "end": 1452072}, {"filename": "/wireshark/radius/dictionary.meinberg", "start": 1452072, "end": 1452777}, {"filename": "/wireshark/radius/dictionary.mellanox", "start": 1452777, "end": 1453259}, {"filename": "/wireshark/radius/dictionary.meraki", "start": 1453259, "end": 1453591}, {"filename": "/wireshark/radius/dictionary.merit", "start": 1453591, "end": 1454014}, {"filename": "/wireshark/radius/dictionary.meru", "start": 1454014, "end": 1454417}, {"filename": "/wireshark/radius/dictionary.microsemi", "start": 1454417, "end": 1455119}, {"filename": "/wireshark/radius/dictionary.microsoft", "start": 1455119, "end": 1461462}, {"filename": "/wireshark/radius/dictionary.mikrotik", "start": 1461462, "end": 1463951}, {"filename": "/wireshark/radius/dictionary.mimosa", "start": 1463951, "end": 1465724}, {"filename": "/wireshark/radius/dictionary.motorola", "start": 1465724, "end": 1468283}, {"filename": "/wireshark/radius/dictionary.motorola.illegal", "start": 1468283, "end": 1469414}, {"filename": "/wireshark/radius/dictionary.motorola.wimax", "start": 1469414, "end": 1470828}, {"filename": "/wireshark/radius/dictionary.navini", "start": 1470828, "end": 1471299}, {"filename": "/wireshark/radius/dictionary.net", "start": 1471299, "end": 1476812}, {"filename": "/wireshark/radius/dictionary.netelastic", "start": 1476812, "end": 1479180}, {"filename": "/wireshark/radius/dictionary.netscreen", "start": 1479180, "end": 1480223}, {"filename": "/wireshark/radius/dictionary.networkphysics", "start": 1480223, "end": 1480817}, {"filename": "/wireshark/radius/dictionary.nexans", "start": 1480817, "end": 1481515}, {"filename": "/wireshark/radius/dictionary.nile", "start": 1481515, "end": 1482097}, {"filename": "/wireshark/radius/dictionary.nokia", "start": 1482097, "end": 1483548}, {"filename": "/wireshark/radius/dictionary.nokia.conflict", "start": 1483548, "end": 1484701}, {"filename": "/wireshark/radius/dictionary.nomadix", "start": 1484701, "end": 1485890}, {"filename": "/wireshark/radius/dictionary.nortel", "start": 1485890, "end": 1488973}, {"filename": "/wireshark/radius/dictionary.ntua", "start": 1488973, "end": 1490403}, {"filename": "/wireshark/radius/dictionary.openser", "start": 1490403, "end": 1491896}, {"filename": "/wireshark/radius/dictionary.openwifi", "start": 1491896, "end": 1492533}, {"filename": "/wireshark/radius/dictionary.packeteer", "start": 1492533, "end": 1493241}, {"filename": "/wireshark/radius/dictionary.paloalto", "start": 1493241, "end": 1494251}, {"filename": "/wireshark/radius/dictionary.patton", "start": 1494251, "end": 1502994}, {"filename": "/wireshark/radius/dictionary.perle", "start": 1502994, "end": 1525854}, {"filename": "/wireshark/radius/dictionary.pfsense", "start": 1525854, "end": 1526302}, {"filename": "/wireshark/radius/dictionary.pica8", "start": 1526302, "end": 1526868}, {"filename": "/wireshark/radius/dictionary.propel", "start": 1526868, "end": 1527429}, {"filename": "/wireshark/radius/dictionary.prosoft", "start": 1527429, "end": 1528846}, {"filename": "/wireshark/radius/dictionary.proxim", "start": 1528846, "end": 1532099}, {"filename": "/wireshark/radius/dictionary.purewave", "start": 1532099, "end": 1533736}, {"filename": "/wireshark/radius/dictionary.quiconnect", "start": 1533736, "end": 1534357}, {"filename": "/wireshark/radius/dictionary.quintum", "start": 1534357, "end": 1535997}, {"filename": "/wireshark/radius/dictionary.rcntec", "start": 1535997, "end": 1536661}, {"filename": "/wireshark/radius/dictionary.redcreek", "start": 1536661, "end": 1537428}, {"filename": "/wireshark/radius/dictionary.rfc2865", "start": 1537428, "end": 1541737}, {"filename": "/wireshark/radius/dictionary.rfc2866", "start": 1541737, "end": 1543832}, {"filename": "/wireshark/radius/dictionary.rfc2867", "start": 1543832, "end": 1544496}, {"filename": "/wireshark/radius/dictionary.rfc2868", "start": 1544496, "end": 1546306}, {"filename": "/wireshark/radius/dictionary.rfc2869", "start": 1546306, "end": 1547584}, {"filename": "/wireshark/radius/dictionary.rfc3162", "start": 1547584, "end": 1548145}, {"filename": "/wireshark/radius/dictionary.rfc3576", "start": 1548145, "end": 1549276}, {"filename": "/wireshark/radius/dictionary.rfc3580", "start": 1549276, "end": 1549887}, {"filename": "/wireshark/radius/dictionary.rfc4072", "start": 1549887, "end": 1550238}, {"filename": "/wireshark/radius/dictionary.rfc4372", "start": 1550238, "end": 1550598}, {"filename": "/wireshark/radius/dictionary.rfc4603", "start": 1550598, "end": 1551251}, {"filename": "/wireshark/radius/dictionary.rfc4675", "start": 1551251, "end": 1552129}, {"filename": "/wireshark/radius/dictionary.rfc4679", "start": 1552129, "end": 1554694}, {"filename": "/wireshark/radius/dictionary.rfc4818", "start": 1554694, "end": 1555218}, {"filename": "/wireshark/radius/dictionary.rfc4849", "start": 1555218, "end": 1555571}, {"filename": "/wireshark/radius/dictionary.rfc5090", "start": 1555571, "end": 1556660}, {"filename": "/wireshark/radius/dictionary.rfc5176", "start": 1556660, "end": 1557085}, {"filename": "/wireshark/radius/dictionary.rfc5447", "start": 1557085, "end": 1557593}, {"filename": "/wireshark/radius/dictionary.rfc5580", "start": 1557593, "end": 1558847}, {"filename": "/wireshark/radius/dictionary.rfc5607", "start": 1558847, "end": 1559870}, {"filename": "/wireshark/radius/dictionary.rfc5904", "start": 1559870, "end": 1560691}, {"filename": "/wireshark/radius/dictionary.rfc6519", "start": 1560691, "end": 1561049}, {"filename": "/wireshark/radius/dictionary.rfc6572", "start": 1561049, "end": 1562269}, {"filename": "/wireshark/radius/dictionary.rfc6677", "start": 1562269, "end": 1562938}, {"filename": "/wireshark/radius/dictionary.rfc6911", "start": 1562938, "end": 1563442}, {"filename": "/wireshark/radius/dictionary.rfc6929", "start": 1563442, "end": 1564493}, {"filename": "/wireshark/radius/dictionary.rfc6930", "start": 1564493, "end": 1564996}, {"filename": "/wireshark/radius/dictionary.rfc7055", "start": 1564996, "end": 1565466}, {"filename": "/wireshark/radius/dictionary.rfc7155", "start": 1565466, "end": 1565945}, {"filename": "/wireshark/radius/dictionary.rfc7268", "start": 1565945, "end": 1568401}, {"filename": "/wireshark/radius/dictionary.rfc7499", "start": 1568401, "end": 1568960}, {"filename": "/wireshark/radius/dictionary.rfc7930", "start": 1568960, "end": 1569326}, {"filename": "/wireshark/radius/dictionary.rfc8045", "start": 1569326, "end": 1571904}, {"filename": "/wireshark/radius/dictionary.rfc8559", "start": 1571904, "end": 1572229}, {"filename": "/wireshark/radius/dictionary.riverbed", "start": 1572229, "end": 1572920}, {"filename": "/wireshark/radius/dictionary.riverstone", "start": 1572920, "end": 1574151}, {"filename": "/wireshark/radius/dictionary.roaringpenguin", "start": 1574151, "end": 1574988}, {"filename": "/wireshark/radius/dictionary.ruckus", "start": 1574988, "end": 1580737}, {"filename": "/wireshark/radius/dictionary.ruggedcom", "start": 1580737, "end": 1581034}, {"filename": "/wireshark/radius/dictionary.sangoma", "start": 1581034, "end": 1585616}, {"filename": "/wireshark/radius/dictionary.sg", "start": 1585616, "end": 1591720}, {"filename": "/wireshark/radius/dictionary.shasta", "start": 1591720, "end": 1592368}, {"filename": "/wireshark/radius/dictionary.shiva", "start": 1592368, "end": 1596684}, {"filename": "/wireshark/radius/dictionary.siemens", "start": 1596684, "end": 1597560}, {"filename": "/wireshark/radius/dictionary.slipstream", "start": 1597560, "end": 1598190}, {"filename": "/wireshark/radius/dictionary.smartsharesystems", "start": 1598190, "end": 1599340}, {"filename": "/wireshark/radius/dictionary.sofaware", "start": 1599340, "end": 1600574}, {"filename": "/wireshark/radius/dictionary.softbank", "start": 1600574, "end": 1601695}, {"filename": "/wireshark/radius/dictionary.sonicwall", "start": 1601695, "end": 1604508}, {"filename": "/wireshark/radius/dictionary.springtide", "start": 1604508, "end": 1605667}, {"filename": "/wireshark/radius/dictionary.starent", "start": 1605667, "end": 1667604}, {"filename": "/wireshark/radius/dictionary.starent.vsa1", "start": 1667604, "end": 1723413}, {"filename": "/wireshark/radius/dictionary.surfnet", "start": 1723413, "end": 1724011}, {"filename": "/wireshark/radius/dictionary.symbol", "start": 1724011, "end": 1727234}, {"filename": "/wireshark/radius/dictionary.t_systems_nova", "start": 1727234, "end": 1728590}, {"filename": "/wireshark/radius/dictionary.telebit", "start": 1728590, "end": 1729165}, {"filename": "/wireshark/radius/dictionary.telkom", "start": 1729165, "end": 1730263}, {"filename": "/wireshark/radius/dictionary.telrad", "start": 1730263, "end": 1731166}, {"filename": "/wireshark/radius/dictionary.terena", "start": 1731166, "end": 1731685}, {"filename": "/wireshark/radius/dictionary.tplink", "start": 1731685, "end": 1732364}, {"filename": "/wireshark/radius/dictionary.trapeze", "start": 1732364, "end": 1733808}, {"filename": "/wireshark/radius/dictionary.travelping", "start": 1733808, "end": 1737066}, {"filename": "/wireshark/radius/dictionary.tripplite", "start": 1737066, "end": 1738958}, {"filename": "/wireshark/radius/dictionary.tropos", "start": 1738958, "end": 1741217}, {"filename": "/wireshark/radius/dictionary.ukerna", "start": 1741217, "end": 1742535}, {"filename": "/wireshark/radius/dictionary.unisphere", "start": 1742535, "end": 1757916}, {"filename": "/wireshark/radius/dictionary.unix", "start": 1757916, "end": 1758461}, {"filename": "/wireshark/radius/dictionary.usr", "start": 1758461, "end": 1831176}, {"filename": "/wireshark/radius/dictionary.usr.illegal", "start": 1831176, "end": 1832559}, {"filename": "/wireshark/radius/dictionary.utstarcom", "start": 1832559, "end": 1834319}, {"filename": "/wireshark/radius/dictionary.valemount", "start": 1834319, "end": 1835144}, {"filename": "/wireshark/radius/dictionary.vasexperts", "start": 1835144, "end": 1840035}, {"filename": "/wireshark/radius/dictionary.verizon", "start": 1840035, "end": 1840942}, {"filename": "/wireshark/radius/dictionary.versanet", "start": 1840942, "end": 1843178}, {"filename": "/wireshark/radius/dictionary.walabi", "start": 1843178, "end": 1844236}, {"filename": "/wireshark/radius/dictionary.waverider", "start": 1844236, "end": 1846292}, {"filename": "/wireshark/radius/dictionary.wichorus", "start": 1846292, "end": 1846957}, {"filename": "/wireshark/radius/dictionary.wifialliance", "start": 1846957, "end": 1850540}, {"filename": "/wireshark/radius/dictionary.wimax", "start": 1850540, "end": 1879145}, {"filename": "/wireshark/radius/dictionary.wimax.alvarion", "start": 1879145, "end": 1899562}, {"filename": "/wireshark/radius/dictionary.wimax.wichorus", "start": 1899562, "end": 1915081}, {"filename": "/wireshark/radius/dictionary.wispr", "start": 1915081, "end": 1916368}, {"filename": "/wireshark/radius/dictionary.xedia", "start": 1916368, "end": 1917287}, {"filename": "/wireshark/radius/dictionary.xylan", "start": 1917287, "end": 1919279}, {"filename": "/wireshark/radius/dictionary.yubico", "start": 1919279, "end": 1920015}, {"filename": "/wireshark/radius/dictionary.zeus", "start": 1920015, "end": 1920361}, {"filename": "/wireshark/radius/dictionary.zte", "start": 1920361, "end": 1923049}, {"filename": "/wireshark/radius/dictionary.zyxel", "start": 1923049, "end": 1923908}, {"filename": "/wireshark/smi_modules", "start": 1923908, "end": 1924223}, {"filename": "/wireshark/tpncp/tpncp.dat", "start": 1924223, "end": 2574397}, {"filename": "/wireshark/wimaxasncp/dictionary.dtd", "start": 2574397, "end": 2574704}, {"filename": "/wireshark/wimaxasncp/dictionary.xml", "start": 2574704, "end": 2666195}, {"filename": "/wireshark/wka", "start": 2666195, "end": 2677416}], "remote_package_size": 2677416});
 
   })();
 
-// end include: /tmp/tmpp2xiah6c.js
-// include: /tmp/tmpt42mo9n5.js
+// end include: /tmp/tmprc20i1t8.js
+// include: /tmp/tmpkxalfo8e.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpt42mo9n5.js
+  // end include: /tmp/tmpkxalfo8e.js
 // include: /src/lib/wiregasm/ext/mod.js
 // defaults
 
@@ -249,13 +266,13 @@ Module["onRuntimeInitialized"] = () => {
   Module.FS.mkdir("/plugins");
   Module.FS.mkdir("/uploads");
 };// end include: /src/lib/wiregasm/ext/mod.js
-// include: /tmp/tmplvd7_3ni.js
+// include: /tmp/tmpr4jo_omo.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmplvd7_3ni.js
+  // end include: /tmp/tmpr4jo_omo.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -283,6 +300,55 @@ function locateFile(path) {
 // Hooks that are implemented differently in different runtime environments.
 var readAsync, readBinary;
 
+if (ENVIRONMENT_IS_NODE) {
+  if (typeof process == 'undefined' || !process.release || process.release.name !== 'node') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
+
+  var nodeVersion = process.versions.node;
+  var numericVersion = nodeVersion.split('.').slice(0, 3);
+  numericVersion = (numericVersion[0] * 10000) + (numericVersion[1] * 100) + (numericVersion[2].split('-')[0] * 1);
+  var minVersion = 160000;
+  if (numericVersion < 160000) {
+    throw new Error('This emscripten-generated code requires node v16.0.0 (detected v' + nodeVersion + ')');
+  }
+
+  // These modules will usually be used on Node.js. Load them eagerly to avoid
+  // the complexity of lazy-loading.
+  var fs = require('fs');
+  var nodePath = require('path');
+
+  scriptDirectory = __dirname + '/';
+
+// include: node_shell_read.js
+readBinary = (filename) => {
+  // We need to re-wrap `file://` strings to URLs.
+  filename = isFileURI(filename) ? new URL(filename) : filename;
+  var ret = fs.readFileSync(filename);
+  assert(Buffer.isBuffer(ret));
+  return ret;
+};
+
+readAsync = async (filename, binary = true) => {
+  // See the comment in the `readBinary` function.
+  filename = isFileURI(filename) ? new URL(filename) : filename;
+  var ret = fs.readFileSync(filename, binary ? undefined : 'utf8');
+  assert(binary ? Buffer.isBuffer(ret) : typeof ret == 'string');
+  return ret;
+};
+// end include: node_shell_read.js
+  if (!Module['thisProgram'] && process.argv.length > 1) {
+    thisProgram = process.argv[1].replace(/\\/g, '/');
+  }
+
+  arguments_ = process.argv.slice(2);
+
+  // MODULARIZE will export the module in the proper place outside, we don't need to export here
+
+  quit_ = (status, toThrow) => {
+    process.exitCode = status;
+    throw toThrow;
+  };
+
+} else
 if (ENVIRONMENT_IS_SHELL) {
 
   if ((typeof process == 'object' && typeof require === 'function') || typeof window == 'object' || typeof WorkerGlobalScope != 'undefined') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
@@ -330,7 +396,26 @@ if (ENVIRONMENT_IS_WORKER) {
   }
 
   readAsync = async (url) => {
-    assert(!isFileURI(url), "readAsync does not work with file:// URLs");
+    // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
+    // See https://github.com/github/fetch/pull/92#issuecomment-140665932
+    // Cordova or Electron apps are typically loaded from a file:// url.
+    // So use XHR on webview if URL is a file URL.
+    if (isFileURI(url)) {
+      return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onload = () => {
+          if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) { // file URLs can return 0
+            resolve(xhr.response);
+            return;
+          }
+          reject(xhr.status);
+        };
+        xhr.onerror = reject;
+        xhr.send(null);
+      });
+    }
     var response = await fetch(url, { credentials: 'same-origin' });
     if (response.ok) {
       return response.arrayBuffer();
@@ -387,10 +472,6 @@ var JSFILEFS = 'JSFILEFS is no longer included by default; build with -ljsfilefs
 var OPFS = 'OPFS is no longer included by default; build with -lopfs.js';
 
 var NODEFS = 'NODEFS is no longer included by default; build with -lnodefs.js';
-
-assert(!ENVIRONMENT_IS_WEB, 'web environment detected but not enabled at build time.  Add `web` to `-sENVIRONMENT` to enable.');
-
-assert(!ENVIRONMENT_IS_NODE, 'node environment detected but not enabled at build time.  Add `node` to `-sENVIRONMENT` to enable.');
 
 assert(!ENVIRONMENT_IS_SHELL, 'shell environment detected but not enabled at build time.  Add `shell` to `-sENVIRONMENT` to enable.');
 
@@ -890,6 +971,15 @@ async function instantiateArrayBuffer(binaryFile, imports) {
 
 async function instantiateAsync(binary, binaryFile, imports) {
   if (!binary && typeof WebAssembly.instantiateStreaming == 'function'
+      // Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
+      && !isFileURI(binaryFile)
+      // Avoid instantiateStreaming() on Node.js environment for now, as while
+      // Node.js v18.1.0 implements it, it does not have a full fetch()
+      // implementation yet.
+      //
+      // Reference:
+      //   https://github.com/emscripten-core/emscripten/pull/16917
+      && !ENVIRONMENT_IS_NODE
      ) {
     try {
       var response = fetch(binaryFile, { credentials: 'same-origin' });
@@ -1074,6 +1164,7 @@ async function createWasm() {
       warnOnce.shown ||= {};
       if (!warnOnce.shown[text]) {
         warnOnce.shown[text] = 1;
+        if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
         err(text);
       }
     };
@@ -1287,6 +1378,11 @@ async function createWasm() {
   };
   
   var initRandomFill = () => {
+      // This block is not needed on v19+ since crypto.getRandomValues is builtin
+      if (ENVIRONMENT_IS_NODE) {
+        var nodeCrypto = require('crypto');
+        return (view) => nodeCrypto.randomFillSync(view);
+      }
   
       return (view) => crypto.getRandomValues(view);
     };
@@ -1434,6 +1530,43 @@ async function createWasm() {
   var FS_stdin_getChar = () => {
       if (!FS_stdin_getChar_buffer.length) {
         var result = null;
+        if (ENVIRONMENT_IS_NODE) {
+          // we will read data by chunks of BUFSIZE
+          var BUFSIZE = 256;
+          var buf = Buffer.alloc(BUFSIZE);
+          var bytesRead = 0;
+  
+          // For some reason we must suppress a closure warning here, even though
+          // fd definitely exists on process.stdin, and is even the proper way to
+          // get the fd of stdin,
+          // https://github.com/nodejs/help/issues/2136#issuecomment-523649904
+          // This started to happen after moving this logic out of library_tty.js,
+          // so it is related to the surrounding code in some unclear manner.
+          /** @suppress {missingProperties} */
+          var fd = process.stdin.fd;
+  
+          try {
+            bytesRead = fs.readSync(fd, buf, 0, BUFSIZE);
+          } catch(e) {
+            // Cross-platform differences: on Windows, reading EOF throws an
+            // exception, but on other OSes, reading EOF returns 0. Uniformize
+            // behavior by treating the EOF exception to return 0.
+            if (e.toString().includes('EOF')) bytesRead = 0;
+            else throw e;
+          }
+  
+          if (bytesRead > 0) {
+            result = buf.slice(0, bytesRead).toString('utf-8');
+          }
+        } else
+        if (typeof window != 'undefined' &&
+          typeof window.prompt == 'function') {
+          // Browser.
+          result = window.prompt('Input: ');  // returns null on cancel
+          if (result !== null) {
+            result += '\n';
+          }
+        } else
         {}
         if (!result) {
           return null;
@@ -4122,6 +4255,9 @@ async function createWasm() {
   
               // If node we use the ws library.
               var WebSocketConstructor;
+              if (ENVIRONMENT_IS_NODE) {
+                WebSocketConstructor = /** @type{(typeof WebSocket)} */(require('ws'));
+              } else
               {
                 WebSocketConstructor = WebSocket;
               }
@@ -4387,6 +4523,53 @@ async function createWasm() {
           if (!ENVIRONMENT_IS_NODE) {
             throw new FS.ErrnoError(138);
           }
+          if (sock.server) {
+             throw new FS.ErrnoError(28);  // already listening
+          }
+          var WebSocketServer = require('ws').Server;
+          var host = sock.saddr;
+          sock.server = new WebSocketServer({
+            host,
+            port: sock.sport
+            // TODO support backlog
+          });
+          SOCKFS.emit('listen', sock.stream.fd); // Send Event with listen fd.
+  
+          sock.server.on('connection', function(ws) {
+            if (sock.type === 1) {
+              var newsock = SOCKFS.createSocket(sock.family, sock.type, sock.protocol);
+  
+              // create a peer on the new socket
+              var peer = SOCKFS.websocket_sock_ops.createPeer(newsock, ws);
+              newsock.daddr = peer.addr;
+              newsock.dport = peer.port;
+  
+              // push to queue for accept to pick up
+              sock.pending.push(newsock);
+              SOCKFS.emit('connection', newsock.stream.fd);
+            } else {
+              // create a peer on the listen socket so calling sendto
+              // with the listen socket and an address will resolve
+              // to the correct client
+              SOCKFS.websocket_sock_ops.createPeer(sock, ws);
+              SOCKFS.emit('connection', sock.stream.fd);
+            }
+          });
+          sock.server.on('close', function() {
+            SOCKFS.emit('close', sock.stream.fd);
+            sock.server = null;
+          });
+          sock.server.on('error', function(error) {
+            // Although the ws library may pass errors that may be more descriptive than
+            // ECONNREFUSED they are not necessarily the expected error code e.g.
+            // ENOTFOUND on getaddrinfo seems to be node.js specific, so using EHOSTUNREACH
+            // is still probably the most useful thing to do. This error shouldn't
+            // occur in a well written app as errors should get trapped in the compiled
+            // app's own getaddrinfo call.
+            sock.error = 23; // Used in getsockopt for SOL_SOCKET/SO_ERROR test.
+            SOCKFS.emit('error', [sock.stream.fd, sock.error, 'EHOSTUNREACH: Host is unreachable']);
+            // don't throw
+          });
         },
   accept(listensock) {
           if (!listensock.server || !listensock.pending.length) {
@@ -4970,10 +5153,26 @@ async function createWasm() {
   ;
   }
 
+  
   var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
       assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
       return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
     };
+  function ___syscall_getcwd(buf, size) {
+  try {
+  
+      if (size === 0) return -28;
+      var cwd = FS.cwd();
+      var cwdLengthInBytes = lengthBytesUTF8(cwd) + 1;
+      if (size < cwdLengthInBytes) return -68;
+      stringToUTF8(cwd, buf, size);
+      return cwdLengthInBytes;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
   
   function ___syscall_getdents64(fd, dirp, count) {
   try {
@@ -5179,29 +5378,6 @@ async function createWasm() {
       path = SYSCALLS.calculateAt(dirfd, path);
       var mode = varargs ? syscallGetVarargI() : 0;
       return FS.open(path, flags, mode).fd;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
-    return -e.errno;
-  }
-  }
-
-  
-  
-  function ___syscall_readlinkat(dirfd, path, buf, bufsize) {
-  try {
-  
-      path = SYSCALLS.getStr(path);
-      path = SYSCALLS.calculateAt(dirfd, path);
-      if (bufsize <= 0) return -28;
-      var ret = FS.readlink(path);
-  
-      var len = Math.min(bufsize, lengthBytesUTF8(ret));
-      var endChar = HEAP8[buf+len];
-      stringToUTF8(ret, buf, bufsize+1);
-      // readlink is one of the rare functions that write out a C string, but does never append a null to the output buffer(!)
-      // stringToUTF8() always appends a null byte, so restore the character under the null byte after the write.
-      HEAP8[buf+len] = endChar;
-      return len;
     } catch (e) {
     if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
     return -e.errno;
@@ -6761,92 +6937,6 @@ async function createWasm() {
     };
 
   
-  
-  
-  
-  
-  
-  
-  var validateThis = (this_, classType, humanName) => {
-      if (!(this_ instanceof Object)) {
-        throwBindingError(`${humanName} with invalid "this": ${this_}`);
-      }
-      if (!(this_ instanceof classType.registeredClass.constructor)) {
-        throwBindingError(`${humanName} incompatible with "this" of type ${this_.constructor.name}`);
-      }
-      if (!this_.$$.ptr) {
-        throwBindingError(`cannot call emscripten binding method ${humanName} on deleted object`);
-      }
-  
-      // todo: kill this
-      return upcastPointer(this_.$$.ptr,
-                           this_.$$.ptrType.registeredClass,
-                           classType.registeredClass);
-    };
-  var __embind_register_class_property = (classType,
-                                      fieldName,
-                                      getterReturnType,
-                                      getterSignature,
-                                      getter,
-                                      getterContext,
-                                      setterArgumentType,
-                                      setterSignature,
-                                      setter,
-                                      setterContext) => {
-      fieldName = readLatin1String(fieldName);
-      getter = embind__requireFunction(getterSignature, getter);
-  
-      whenDependentTypesAreResolved([], [classType], (classType) => {
-        classType = classType[0];
-        var humanName = `${classType.name}.${fieldName}`;
-        var desc = {
-          get() {
-            throwUnboundTypeError(`Cannot access ${humanName} due to unbound types`, [getterReturnType, setterArgumentType]);
-          },
-          enumerable: true,
-          configurable: true
-        };
-        if (setter) {
-          desc.set = () => throwUnboundTypeError(`Cannot access ${humanName} due to unbound types`, [getterReturnType, setterArgumentType]);
-        } else {
-          desc.set = (v) => throwBindingError(humanName + ' is a read-only property');
-        }
-  
-        Object.defineProperty(classType.registeredClass.instancePrototype, fieldName, desc);
-  
-        whenDependentTypesAreResolved(
-          [],
-          (setter ? [getterReturnType, setterArgumentType] : [getterReturnType]),
-        (types) => {
-          var getterReturnType = types[0];
-          var desc = {
-            get() {
-              var ptr = validateThis(this, classType, humanName + ' getter');
-              return getterReturnType['fromWireType'](getter(getterContext, ptr));
-            },
-            enumerable: true
-          };
-  
-          if (setter) {
-            setter = embind__requireFunction(setterSignature, setter);
-            var setterArgumentType = types[1];
-            desc.set = function(v) {
-              var ptr = validateThis(this, classType, humanName + ' setter');
-              var destructors = [];
-              setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, v));
-              runDestructors(destructors);
-            };
-          }
-  
-          Object.defineProperty(classType.registeredClass.instancePrototype, fieldName, desc);
-          return [];
-        });
-  
-        return [];
-      });
-    };
-
-  
   var emval_freelist = [];
   
   var emval_handles = [];
@@ -7071,45 +7161,6 @@ async function createWasm() {
   var EmValOptionalType = Object.assign({optional: true}, EmValType);;
   var __embind_register_optional = (rawOptionalType, rawType) => {
       registerType(rawOptionalType, EmValOptionalType);
-    };
-
-  
-  
-  var __embind_register_smart_ptr = (rawType,
-                                 rawPointeeType,
-                                 name,
-                                 sharingPolicy,
-                                 getPointeeSignature,
-                                 rawGetPointee,
-                                 constructorSignature,
-                                 rawConstructor,
-                                 shareSignature,
-                                 rawShare,
-                                 destructorSignature,
-                                 rawDestructor) => {
-      name = readLatin1String(name);
-      rawGetPointee = embind__requireFunction(getPointeeSignature, rawGetPointee);
-      rawConstructor = embind__requireFunction(constructorSignature, rawConstructor);
-      rawShare = embind__requireFunction(shareSignature, rawShare);
-      rawDestructor = embind__requireFunction(destructorSignature, rawDestructor);
-  
-      whenDependentTypesAreResolved([rawType], [rawPointeeType], (pointeeType) => {
-        pointeeType = pointeeType[0];
-  
-        var registeredPointer = new RegisteredPointer(name,
-                                                      pointeeType.registeredClass,
-                                                      false,
-                                                      false,
-                                                      // smart pointer properties
-                                                      true,
-                                                      pointeeType,
-                                                      sharingPolicy,
-                                                      rawGetPointee,
-                                                      rawConstructor,
-                                                      rawShare,
-                                                      rawDestructor);
-        return [registeredPointer];
-      });
     };
 
   
@@ -7465,6 +7516,37 @@ async function createWasm() {
     };
 
   var __emscripten_system = (command) => {
+      if (ENVIRONMENT_IS_NODE) {
+        if (!command) return 1; // shell is available
+  
+        var cmdstr = UTF8ToString(command);
+        if (!cmdstr.length) return 0; // this is what glibc seems to do (shell works test?)
+  
+        var cp = require('child_process');
+        var ret = cp.spawnSync(cmdstr, [], {shell:true, stdio:'inherit'});
+  
+        var _W_EXITCODE = (ret, sig) => ((ret) << 8 | (sig));
+  
+        // this really only can happen if process is killed by signal
+        if (ret.status === null) {
+          // sadly node doesn't expose such function
+          var signalToNumber = (sig) => {
+            // implement only the most common ones, and fallback to SIGINT
+            switch (sig) {
+              case 'SIGHUP': return 1;
+              case 'SIGQUIT': return 3;
+              case 'SIGFPE': return 8;
+              case 'SIGKILL': return 9;
+              case 'SIGALRM': return 14;
+              case 'SIGTERM': return 15;
+              default: return 2;
+            }
+          }
+          return _W_EXITCODE(0, signalToNumber(ret.signal));
+        }
+  
+        return _W_EXITCODE(ret.status, 0);
+      }
       // int system(const char *command);
       // http://pubs.opengroup.org/onlinepubs/000095399/functions/system.html
       // Can't call external programs.
@@ -7476,20 +7558,6 @@ async function createWasm() {
       throw Infinity;
     };
 
-  var emval_methodCallers = [];
-  
-  var __emval_call = (caller, handle, destructorsRef, args) => {
-      caller = emval_methodCallers[caller];
-      handle = Emval.toValue(handle);
-      return caller(null, handle, destructorsRef, args);
-    };
-
-
-  var emval_addMethodCaller = (caller) => {
-      var id = emval_methodCallers.length;
-      emval_methodCallers.push(caller);
-      return id;
-    };
   
   
   
@@ -7500,17 +7568,6 @@ async function createWasm() {
       }
       return impl;
     };
-  var emval_lookupTypes = (argCount, argTypes) => {
-      var a = new Array(argCount);
-      for (var i = 0; i < argCount; ++i) {
-        a[i] = requireRegisteredType(HEAPU32[(((argTypes)+(i * 4))>>2)],
-                                     "parameter " + i);
-      }
-      return a;
-    };
-  
-  
-  var reflectConstruct = Reflect.construct;
   
   var emval_returnValue = (returnType, destructorsRef, handle) => {
       var destructors = [];
@@ -7521,53 +7578,12 @@ async function createWasm() {
       }
       return result;
     };
-  
-  var __emval_get_method_caller = (argCount, argTypes, kind) => {
-      var types = emval_lookupTypes(argCount, argTypes);
-      var retType = types.shift();
-      argCount--; // remove the shifted off return type
-  
-      var functionBody =
-        `return function (obj, func, destructorsRef, args) {\n`;
-  
-      var offset = 0;
-      var argsList = []; // 'obj?, arg0, arg1, arg2, ... , argN'
-      if (kind === /* FUNCTION */ 0) {
-        argsList.push("obj");
-      }
-      var params = ["retType"];
-      var args = [retType];
-      for (var i = 0; i < argCount; ++i) {
-        argsList.push("arg" + i);
-        params.push("argType" + i);
-        args.push(types[i]);
-        functionBody +=
-          `  var arg${i} = argType${i}.readValueFromPointer(args${offset ? "+" + offset : ""});\n`;
-        offset += types[i].argPackAdvance;
-      }
-      var invoker = kind === /* CONSTRUCTOR */ 1 ? 'new func' : 'func.call';
-      functionBody +=
-        `  var rv = ${invoker}(${argsList.join(", ")});\n`;
-      if (!retType.isVoid) {
-        params.push("emval_returnValue");
-        args.push(emval_returnValue);
-        functionBody +=
-          "  return emval_returnValue(retType, destructorsRef, rv);\n";
-      }
-      functionBody +=
-        "};\n";
-  
-      params.push(functionBody);
-      var invokerFunction = newFunc(Function, params)(...args);
-      var functionName = `methodCaller<(${types.map(t => t.name).join(', ')}) => ${retType.name}>`;
-      return emval_addMethodCaller(createNamedFunction(functionName, invokerFunction));
+  var __emval_as = (handle, returnType, destructorsRef) => {
+      handle = Emval.toValue(handle);
+      returnType = requireRegisteredType(returnType, 'emval::as');
+      return emval_returnValue(returnType, destructorsRef, handle);
     };
 
-  var __emval_incref = (handle) => {
-      if (handle > 9) {
-        emval_handles[handle + 1] += 1;
-      }
-    };
 
   
   
@@ -7735,6 +7751,28 @@ async function createWasm() {
   }
   ;
   }
+
+  var __timegm_js = function(tmPtr) {
+  
+  var ret = (() => { 
+      var time = Date.UTC(HEAP32[(((tmPtr)+(20))>>2)] + 1900,
+                          HEAP32[(((tmPtr)+(16))>>2)],
+                          HEAP32[(((tmPtr)+(12))>>2)],
+                          HEAP32[(((tmPtr)+(8))>>2)],
+                          HEAP32[(((tmPtr)+(4))>>2)],
+                          HEAP32[((tmPtr)>>2)],
+                          0);
+      var date = new Date(time);
+  
+      HEAP32[(((tmPtr)+(24))>>2)] = date.getUTCDay();
+      var start = Date.UTC(date.getUTCFullYear(), 0, 1, 0, 0, 0, 0);
+      var yday = ((date.getTime() - start) / (1000 * 60 * 60 * 24))|0;
+      HEAP32[(((tmPtr)+(28))>>2)] = yday;
+  
+      return date.getTime() / 1000;
+     })();
+  return BigInt(ret);
+  };
 
   
   var __tzset_js = (timezone, daylight, std_name, dst_name) => {
@@ -8147,307 +8185,6 @@ async function createWasm() {
   }
   }
 
-  
-  var arraySum = (array, index) => {
-      var sum = 0;
-      for (var i = 0; i <= index; sum += array[i++]) {
-        // no-op
-      }
-      return sum;
-    };
-  
-  
-  var MONTH_DAYS_LEAP = [31,29,31,30,31,30,31,31,30,31,30,31];
-  
-  var MONTH_DAYS_REGULAR = [31,28,31,30,31,30,31,31,30,31,30,31];
-  var addDays = (date, days) => {
-      var newDate = new Date(date.getTime());
-      while (days > 0) {
-        var leap = isLeapYear(newDate.getFullYear());
-        var currentMonth = newDate.getMonth();
-        var daysInCurrentMonth = (leap ? MONTH_DAYS_LEAP : MONTH_DAYS_REGULAR)[currentMonth];
-  
-        if (days > daysInCurrentMonth-newDate.getDate()) {
-          // we spill over to next month
-          days -= (daysInCurrentMonth-newDate.getDate()+1);
-          newDate.setDate(1);
-          if (currentMonth < 11) {
-            newDate.setMonth(currentMonth+1)
-          } else {
-            newDate.setMonth(0);
-            newDate.setFullYear(newDate.getFullYear()+1);
-          }
-        } else {
-          // we stay in current month
-          newDate.setDate(newDate.getDate()+days);
-          return newDate;
-        }
-      }
-  
-      return newDate;
-    };
-  
-  
-  
-  
-  var _strptime = (buf, format, tm) => {
-      // char *strptime(const char *restrict buf, const char *restrict format, struct tm *restrict tm);
-      // http://pubs.opengroup.org/onlinepubs/009695399/functions/strptime.html
-      var pattern = UTF8ToString(format);
-  
-      // escape special characters
-      // TODO: not sure we really need to escape all of these in JS regexps
-      var SPECIAL_CHARS = '\\!@#$^&*()+=-[]/{}|:<>?,.';
-      for (var i=0, ii=SPECIAL_CHARS.length; i<ii; ++i) {
-        pattern = pattern.replace(new RegExp('\\'+SPECIAL_CHARS[i], 'g'), '\\'+SPECIAL_CHARS[i]);
-      }
-  
-      // reduce number of matchers
-      var EQUIVALENT_MATCHERS = {
-        'A':  '%a',
-        'B':  '%b',
-        'c':  '%a %b %d %H:%M:%S %Y',
-        'D':  '%m\\/%d\\/%y',
-        'e':  '%d',
-        'F':  '%Y-%m-%d',
-        'h':  '%b',
-        'R':  '%H\\:%M',
-        'r':  '%I\\:%M\\:%S\\s%p',
-        'T':  '%H\\:%M\\:%S',
-        'x':  '%m\\/%d\\/(?:%y|%Y)',
-        'X':  '%H\\:%M\\:%S'
-      };
-      // TODO: take care of locale
-  
-      var DATE_PATTERNS = {
-        /* weekday name */    'a': '(?:Sun(?:day)?)|(?:Mon(?:day)?)|(?:Tue(?:sday)?)|(?:Wed(?:nesday)?)|(?:Thu(?:rsday)?)|(?:Fri(?:day)?)|(?:Sat(?:urday)?)',
-        /* month name */      'b': '(?:Jan(?:uary)?)|(?:Feb(?:ruary)?)|(?:Mar(?:ch)?)|(?:Apr(?:il)?)|May|(?:Jun(?:e)?)|(?:Jul(?:y)?)|(?:Aug(?:ust)?)|(?:Sep(?:tember)?)|(?:Oct(?:ober)?)|(?:Nov(?:ember)?)|(?:Dec(?:ember)?)',
-        /* century */         'C': '\\d\\d',
-        /* day of month */    'd': '0[1-9]|[1-9](?!\\d)|1\\d|2\\d|30|31',
-        /* hour (24hr) */     'H': '\\d(?!\\d)|[0,1]\\d|20|21|22|23',
-        /* hour (12hr) */     'I': '\\d(?!\\d)|0\\d|10|11|12',
-        /* day of year */     'j': '00[1-9]|0?[1-9](?!\\d)|0?[1-9]\\d(?!\\d)|[1,2]\\d\\d|3[0-6]\\d',
-        /* month */           'm': '0[1-9]|[1-9](?!\\d)|10|11|12',
-        /* minutes */         'M': '0\\d|\\d(?!\\d)|[1-5]\\d',
-        /* whitespace */      'n': ' ',
-        /* AM/PM */           'p': 'AM|am|PM|pm|A\\.M\\.|a\\.m\\.|P\\.M\\.|p\\.m\\.',
-        /* seconds */         'S': '0\\d|\\d(?!\\d)|[1-5]\\d|60',
-        /* week number */     'U': '0\\d|\\d(?!\\d)|[1-4]\\d|50|51|52|53',
-        /* week number */     'W': '0\\d|\\d(?!\\d)|[1-4]\\d|50|51|52|53',
-        /* weekday number */  'w': '[0-6]',
-        /* 2-digit year */    'y': '\\d\\d',
-        /* 4-digit year */    'Y': '\\d\\d\\d\\d',
-        /* whitespace */      't': ' ',
-        /* time zone */       'z': 'Z|(?:[\\+\\-]\\d\\d:?(?:\\d\\d)?)'
-      };
-  
-      var MONTH_NUMBERS = {JAN: 0, FEB: 1, MAR: 2, APR: 3, MAY: 4, JUN: 5, JUL: 6, AUG: 7, SEP: 8, OCT: 9, NOV: 10, DEC: 11};
-      var DAY_NUMBERS_SUN_FIRST = {SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6};
-      var DAY_NUMBERS_MON_FIRST = {MON: 0, TUE: 1, WED: 2, THU: 3, FRI: 4, SAT: 5, SUN: 6};
-  
-      var capture = [];
-      var pattern_out = pattern
-        .replace(/%(.)/g, (m, c) => EQUIVALENT_MATCHERS[c] || m)
-        .replace(/%(.)/g, (_, c) => {
-          let pat = DATE_PATTERNS[c];
-          if (pat){
-            capture.push(c);
-            return `(${pat})`;
-          } else {
-            return c;
-          }
-        })
-        .replace( // any number of space or tab characters match zero or more spaces
-          /\s+/g,'\\s*'
-        );
-  
-      var matches = new RegExp('^'+pattern_out, "i").exec(UTF8ToString(buf))
-  
-      function initDate() {
-        function fixup(value, min, max) {
-          return (typeof value != 'number' || isNaN(value)) ? min : (value>=min ? (value<=max ? value: max): min);
-        };
-        return {
-          year: fixup(HEAP32[(((tm)+(20))>>2)] + 1900 , 1970, 9999),
-          month: fixup(HEAP32[(((tm)+(16))>>2)], 0, 11),
-          day: fixup(HEAP32[(((tm)+(12))>>2)], 1, 31),
-          hour: fixup(HEAP32[(((tm)+(8))>>2)], 0, 23),
-          min: fixup(HEAP32[(((tm)+(4))>>2)], 0, 59),
-          sec: fixup(HEAP32[((tm)>>2)], 0, 59),
-          gmtoff: 0
-        };
-      };
-  
-      if (matches) {
-        var date = initDate();
-        var value;
-  
-        var getMatch = (symbol) => {
-          var pos = capture.indexOf(symbol);
-          // check if symbol appears in regexp
-          if (pos >= 0) {
-            // return matched value or null (falsy!) for non-matches
-            return matches[pos+1];
-          }
-          return;
-        };
-  
-        // seconds
-        if ((value=getMatch('S'))) {
-          date.sec = Number(value);
-        }
-  
-        // minutes
-        if ((value=getMatch('M'))) {
-          date.min = Number(value);
-        }
-  
-        // hours
-        if ((value=getMatch('H'))) {
-          // 24h clock
-          date.hour = Number(value);
-        } else if ((value = getMatch('I'))) {
-          // AM/PM clock
-          var hour = Number(value);
-          if ((value=getMatch('p'))) {
-            hour += value.toUpperCase()[0] === 'P' ? 12 : 0;
-          }
-          date.hour = hour;
-        }
-  
-        // year
-        if ((value=getMatch('Y'))) {
-          // parse from four-digit year
-          date.year = Number(value);
-        } else if ((value=getMatch('y'))) {
-          // parse from two-digit year...
-          var year = Number(value);
-          if ((value=getMatch('C'))) {
-            // ...and century
-            year += Number(value)*100;
-          } else {
-            // ...and rule-of-thumb
-            year += year<69 ? 2000 : 1900;
-          }
-          date.year = year;
-        }
-  
-        // month
-        if ((value=getMatch('m'))) {
-          // parse from month number
-          date.month = Number(value)-1;
-        } else if ((value=getMatch('b'))) {
-          // parse from month name
-          date.month = MONTH_NUMBERS[value.substring(0,3).toUpperCase()] || 0;
-          // TODO: derive month from day in year+year, week number+day of week+year
-        }
-  
-        // day
-        if ((value=getMatch('d'))) {
-          // get day of month directly
-          date.day = Number(value);
-        } else if ((value=getMatch('j'))) {
-          // get day of month from day of year ...
-          var day = Number(value);
-          var leapYear = isLeapYear(date.year);
-          for (var month=0; month<12; ++month) {
-            var daysUntilMonth = arraySum(leapYear ? MONTH_DAYS_LEAP : MONTH_DAYS_REGULAR, month-1);
-            if (day<=daysUntilMonth+(leapYear ? MONTH_DAYS_LEAP : MONTH_DAYS_REGULAR)[month]) {
-              date.day = day-daysUntilMonth;
-            }
-          }
-        } else if ((value=getMatch('a'))) {
-          // get day of month from weekday ...
-          var weekDay = value.substring(0,3).toUpperCase();
-          if ((value=getMatch('U'))) {
-            // ... and week number (Sunday being first day of week)
-            // Week number of the year (Sunday as the first day of the week) as a decimal number [00,53].
-            // All days in a new year preceding the first Sunday are considered to be in week 0.
-            var weekDayNumber = DAY_NUMBERS_SUN_FIRST[weekDay];
-            var weekNumber = Number(value);
-  
-            // January 1st
-            var janFirst = new Date(date.year, 0, 1);
-            var endDate;
-            if (janFirst.getDay() === 0) {
-              // Jan 1st is a Sunday, and, hence in the 1st CW
-              endDate = addDays(janFirst, weekDayNumber+7*(weekNumber-1));
-            } else {
-              // Jan 1st is not a Sunday, and, hence still in the 0th CW
-              endDate = addDays(janFirst, 7-janFirst.getDay()+weekDayNumber+7*(weekNumber-1));
-            }
-            date.day = endDate.getDate();
-            date.month = endDate.getMonth();
-          } else if ((value=getMatch('W'))) {
-            // ... and week number (Monday being first day of week)
-            // Week number of the year (Monday as the first day of the week) as a decimal number [00,53].
-            // All days in a new year preceding the first Monday are considered to be in week 0.
-            var weekDayNumber = DAY_NUMBERS_MON_FIRST[weekDay];
-            var weekNumber = Number(value);
-  
-            // January 1st
-            var janFirst = new Date(date.year, 0, 1);
-            var endDate;
-            if (janFirst.getDay()===1) {
-              // Jan 1st is a Monday, and, hence in the 1st CW
-               endDate = addDays(janFirst, weekDayNumber+7*(weekNumber-1));
-            } else {
-              // Jan 1st is not a Monday, and, hence still in the 0th CW
-              endDate = addDays(janFirst, 7-janFirst.getDay()+1+weekDayNumber+7*(weekNumber-1));
-            }
-  
-            date.day = endDate.getDate();
-            date.month = endDate.getMonth();
-          }
-        }
-  
-        // time zone
-        if ((value = getMatch('z'))) {
-          // GMT offset as either 'Z' or +-HH:MM or +-HH or +-HHMM
-          if (value.toLowerCase() === 'z'){
-            date.gmtoff = 0;
-          } else {          
-            var match = value.match(/^((?:\-|\+)\d\d):?(\d\d)?/);
-            date.gmtoff = match[1] * 3600;
-            if (match[2]) {
-              date.gmtoff += date.gmtoff >0 ? match[2] * 60 : -match[2] * 60
-            }
-          }
-        }
-  
-        /*
-        tm_sec  int seconds after the minute  0-61*
-        tm_min  int minutes after the hour  0-59
-        tm_hour int hours since midnight  0-23
-        tm_mday int day of the month  1-31
-        tm_mon  int months since January  0-11
-        tm_year int years since 1900
-        tm_wday int days since Sunday 0-6
-        tm_yday int days since January 1  0-365
-        tm_isdst  int Daylight Saving Time flag
-        tm_gmtoff long offset from GMT (seconds)
-        */
-  
-        var fullDate = new Date(date.year, date.month, date.day, date.hour, date.min, date.sec, 0);
-        HEAP32[((tm)>>2)] = fullDate.getSeconds();
-        HEAP32[(((tm)+(4))>>2)] = fullDate.getMinutes();
-        HEAP32[(((tm)+(8))>>2)] = fullDate.getHours();
-        HEAP32[(((tm)+(12))>>2)] = fullDate.getDate();
-        HEAP32[(((tm)+(16))>>2)] = fullDate.getMonth();
-        HEAP32[(((tm)+(20))>>2)] = fullDate.getFullYear()-1900;
-        HEAP32[(((tm)+(24))>>2)] = fullDate.getDay();
-        HEAP32[(((tm)+(28))>>2)] = arraySum(isLeapYear(fullDate.getFullYear()) ? MONTH_DAYS_LEAP : MONTH_DAYS_REGULAR, fullDate.getMonth()-1)+fullDate.getDate()-1;
-        HEAP32[(((tm)+(32))>>2)] = 0;
-        HEAP32[(((tm)+(36))>>2)] = date.gmtoff;
-   
-        // we need to convert the matched sequence into an integer array to take care of UTF-8 characters > 0x7F
-        // TODO: not sure that intArrayFromString handles all unicode characters correctly
-        return buf+intArrayFromString(matches[0]).length-1;
-      }
-  
-      return 0;
-    };
-
 
 
 
@@ -8506,6 +8243,8 @@ var wasmImports = {
   /** @export */
   __syscall_ftruncate64: ___syscall_ftruncate64,
   /** @export */
+  __syscall_getcwd: ___syscall_getcwd,
+  /** @export */
   __syscall_getdents64: ___syscall_getdents64,
   /** @export */
   __syscall_ioctl: ___syscall_ioctl,
@@ -8517,8 +8256,6 @@ var wasmImports = {
   __syscall_newfstatat: ___syscall_newfstatat,
   /** @export */
   __syscall_openat: ___syscall_openat,
-  /** @export */
-  __syscall_readlinkat: ___syscall_readlinkat,
   /** @export */
   __syscall_recvfrom: ___syscall_recvfrom,
   /** @export */
@@ -8548,8 +8285,6 @@ var wasmImports = {
   /** @export */
   _embind_register_class_function: __embind_register_class_function,
   /** @export */
-  _embind_register_class_property: __embind_register_class_property,
-  /** @export */
   _embind_register_emval: __embind_register_emval,
   /** @export */
   _embind_register_float: __embind_register_float,
@@ -8561,8 +8296,6 @@ var wasmImports = {
   _embind_register_memory_view: __embind_register_memory_view,
   /** @export */
   _embind_register_optional: __embind_register_optional,
-  /** @export */
-  _embind_register_smart_ptr: __embind_register_smart_ptr,
   /** @export */
   _embind_register_std_string: __embind_register_std_string,
   /** @export */
@@ -8580,13 +8313,9 @@ var wasmImports = {
   /** @export */
   _emscripten_throw_longjmp: __emscripten_throw_longjmp,
   /** @export */
-  _emval_call: __emval_call,
+  _emval_as: __emval_as,
   /** @export */
   _emval_decref: __emval_decref,
-  /** @export */
-  _emval_get_method_caller: __emval_get_method_caller,
-  /** @export */
-  _emval_incref: __emval_incref,
   /** @export */
   _emval_run_destructors: __emval_run_destructors,
   /** @export */
@@ -8601,6 +8330,8 @@ var wasmImports = {
   _mmap_js: __mmap_js,
   /** @export */
   _munmap_js: __munmap_js,
+  /** @export */
+  _timegm_js: __timegm_js,
   /** @export */
   _tzset_js: __tzset_js,
   /** @export */
@@ -8632,6 +8363,8 @@ var wasmImports = {
   /** @export */
   fd_write: _fd_write,
   /** @export */
+  invoke_di,
+  /** @export */
   invoke_i,
   /** @export */
   invoke_ii,
@@ -8658,13 +8391,19 @@ var wasmImports = {
   /** @export */
   invoke_iiiiiiiiiiiii,
   /** @export */
+  invoke_iiiiiiij,
+  /** @export */
   invoke_iiiiiij,
   /** @export */
   invoke_iiiiiijii,
   /** @export */
   invoke_iiiijii,
   /** @export */
+  invoke_iij,
+  /** @export */
   invoke_ij,
+  /** @export */
+  invoke_ji,
   /** @export */
   invoke_jii,
   /** @export */
@@ -8694,19 +8433,19 @@ var wasmImports = {
   /** @export */
   invoke_viiiiij,
   /** @export */
+  invoke_vij,
+  /** @export */
   on_status: _on_status,
   /** @export */
   proc_exit: _proc_exit,
   /** @export */
-  random_get: _random_get,
-  /** @export */
-  strptime: _strptime
+  random_get: _random_get
 };
 var wasmExports = await createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
 var _malloc = Module['_malloc'] = createExportWrapper('malloc', 1);
-var ___getTypeName = createExportWrapper('__getTypeName', 1);
 var _free = createExportWrapper('free', 1);
+var ___getTypeName = createExportWrapper('__getTypeName', 1);
 var _fflush = createExportWrapper('fflush', 1);
 var _strerror = createExportWrapper('strerror', 1);
 var _ntohs = createExportWrapper('ntohs', 1);
@@ -8725,8 +8464,9 @@ var dynCall_iii = Module['dynCall_iii'] = createExportWrapper('dynCall_iii', 3);
 var dynCall_vi = Module['dynCall_vi'] = createExportWrapper('dynCall_vi', 2);
 var dynCall_vii = Module['dynCall_vii'] = createExportWrapper('dynCall_vii', 3);
 var dynCall_viii = Module['dynCall_viii'] = createExportWrapper('dynCall_viii', 4);
-var dynCall_iiiiii = Module['dynCall_iiiiii'] = createExportWrapper('dynCall_iiiiii', 6);
 var dynCall_viiii = Module['dynCall_viiii'] = createExportWrapper('dynCall_viiii', 5);
+var dynCall_viiiiji = Module['dynCall_viiiiji'] = createExportWrapper('dynCall_viiiiji', 7);
+var dynCall_iiiiii = Module['dynCall_iiiiii'] = createExportWrapper('dynCall_iiiiii', 6);
 var dynCall_i = Module['dynCall_i'] = createExportWrapper('dynCall_i', 1);
 var dynCall_iiii = Module['dynCall_iiii'] = createExportWrapper('dynCall_iiii', 4);
 var dynCall_viiiiii = Module['dynCall_viiiiii'] = createExportWrapper('dynCall_viiiiii', 7);
@@ -8735,33 +8475,34 @@ var dynCall_iiiii = Module['dynCall_iiiii'] = createExportWrapper('dynCall_iiiii
 var dynCall_viiiii = Module['dynCall_viiiii'] = createExportWrapper('dynCall_viiiii', 6);
 var dynCall_dii = Module['dynCall_dii'] = createExportWrapper('dynCall_dii', 3);
 var dynCall_viid = Module['dynCall_viid'] = createExportWrapper('dynCall_viid', 4);
-var dynCall_viif = Module['dynCall_viif'] = createExportWrapper('dynCall_viif', 4);
-var dynCall_viiif = Module['dynCall_viiif'] = createExportWrapper('dynCall_viiif', 5);
-var dynCall_iiiif = Module['dynCall_iiiif'] = createExportWrapper('dynCall_iiiif', 5);
 var dynCall_iiiiiii = Module['dynCall_iiiiiii'] = createExportWrapper('dynCall_iiiiiii', 7);
+var dynCall_iiiji = Module['dynCall_iiiji'] = createExportWrapper('dynCall_iiiji', 5);
+var dynCall_iiidi = Module['dynCall_iiidi'] = createExportWrapper('dynCall_iiidi', 5);
 var dynCall_vid = Module['dynCall_vid'] = createExportWrapper('dynCall_vid', 3);
 var dynCall_di = Module['dynCall_di'] = createExportWrapper('dynCall_di', 2);
 var dynCall_vij = Module['dynCall_vij'] = createExportWrapper('dynCall_vij', 3);
 var dynCall_ji = Module['dynCall_ji'] = createExportWrapper('dynCall_ji', 2);
+var dynCall_viiiiiii = Module['dynCall_viiiiiii'] = createExportWrapper('dynCall_viiiiiii', 8);
 var dynCall_iiiiiiii = Module['dynCall_iiiiiiii'] = createExportWrapper('dynCall_iiiiiiii', 8);
 var dynCall_iiiiiiiii = Module['dynCall_iiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiii', 9);
-var dynCall_viiiiiiii = Module['dynCall_viiiiiiii'] = createExportWrapper('dynCall_viiiiiiii', 9);
-var dynCall_iijiiii = Module['dynCall_iijiiii'] = createExportWrapper('dynCall_iijiiii', 7);
 var dynCall_iiiiiiiiiiiii = Module['dynCall_iiiiiiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiiiiiii', 13);
 var dynCall_iiiiiiiiiiii = Module['dynCall_iiiiiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiiiiii', 12);
 var dynCall_iiiiiiiiiii = Module['dynCall_iiiiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiiiii', 11);
 var dynCall_viiiiij = Module['dynCall_viiiiij'] = createExportWrapper('dynCall_viiiiij', 7);
 var dynCall_iiiiiij = Module['dynCall_iiiiiij'] = createExportWrapper('dynCall_iiiiiij', 7);
+var dynCall_iiiiiiij = Module['dynCall_iiiiiiij'] = createExportWrapper('dynCall_iiiiiiij', 8);
 var dynCall_iiiiiijii = Module['dynCall_iiiiiijii'] = createExportWrapper('dynCall_iiiiiijii', 9);
-var dynCall_viiiiiii = Module['dynCall_viiiiiii'] = createExportWrapper('dynCall_viiiiiii', 8);
+var dynCall_viiiiiiii = Module['dynCall_viiiiiiii'] = createExportWrapper('dynCall_viiiiiiii', 9);
 var dynCall_iiiiiiiiii = Module['dynCall_iiiiiiiiii'] = createExportWrapper('dynCall_iiiiiiiiii', 10);
+var dynCall_viiiiiiiii = Module['dynCall_viiiiiiiii'] = createExportWrapper('dynCall_viiiiiiiii', 10);
 var dynCall_jiii = Module['dynCall_jiii'] = createExportWrapper('dynCall_jiii', 4);
+var dynCall_jii = Module['dynCall_jii'] = createExportWrapper('dynCall_jii', 3);
+var dynCall_iij = Module['dynCall_iij'] = createExportWrapper('dynCall_iij', 3);
+var dynCall_iijiiii = Module['dynCall_iijiiii'] = createExportWrapper('dynCall_iijiiii', 7);
 var dynCall_ij = Module['dynCall_ij'] = createExportWrapper('dynCall_ij', 2);
 var dynCall_viiiiiiiiii = Module['dynCall_viiiiiiiiii'] = createExportWrapper('dynCall_viiiiiiiiii', 11);
 var dynCall_iiiijii = Module['dynCall_iiiijii'] = createExportWrapper('dynCall_iiiijii', 7);
 var dynCall_iji = Module['dynCall_iji'] = createExportWrapper('dynCall_iji', 3);
-var dynCall_jii = Module['dynCall_jii'] = createExportWrapper('dynCall_jii', 3);
-var dynCall_viiiiiiiii = Module['dynCall_viiiiiiiii'] = createExportWrapper('dynCall_viiiiiiiii', 10);
 var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji', 4);
 var dynCall_iidiiii = Module['dynCall_iidiiii'] = createExportWrapper('dynCall_iidiiii', 7);
 
@@ -8853,10 +8594,89 @@ function invoke_iiii(index,a1,a2,a3) {
   }
 }
 
+function invoke_ji(index,a1) {
+  var sp = stackSave();
+  try {
+    return dynCall_ji(index,a1);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
+function invoke_di(index,a1) {
+  var sp = stackSave();
+  try {
+    return dynCall_di(index,a1);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_jii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    return dynCall_jii(index,a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
+function invoke_viii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    dynCall_viii(index,a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_iiiii(index,a1,a2,a3,a4) {
   var sp = stackSave();
   try {
     return dynCall_iiiii(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_vij(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    dynCall_vij(index,a1,a2);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -8875,21 +8695,10 @@ function invoke_iiiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
   }
 }
 
-function invoke_viiiii(index,a1,a2,a3,a4,a5) {
+function invoke_iij(index,a1,a2) {
   var sp = stackSave();
   try {
-    dynCall_viiiii(index,a1,a2,a3,a4,a5);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viii(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    dynCall_viii(index,a1,a2,a3);
+    return dynCall_iij(index,a1,a2);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -8919,10 +8728,10 @@ function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
   }
 }
 
-function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
-    return dynCall_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
+    dynCall_viiiii(index,a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -8930,10 +8739,10 @@ function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   }
 }
 
-function invoke_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   var sp = stackSave();
   try {
-    dynCall_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
+    return dynCall_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -9007,6 +8816,17 @@ function invoke_iiiiiij(index,a1,a2,a3,a4,a5,a6) {
   }
 }
 
+function invoke_iiiiiiij(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiij(index,a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_iiiiiijii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   var sp = stackSave();
   try {
@@ -9018,10 +8838,10 @@ function invoke_iiiiiijii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   }
 }
 
-function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+function invoke_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
   var sp = stackSave();
   try {
-    dynCall_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
+    dynCall_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -9029,10 +8849,10 @@ function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
   }
 }
 
-function invoke_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+function invoke_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
   var sp = stackSave();
   try {
-    return dynCall_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+    dynCall_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -9078,29 +8898,6 @@ function invoke_iiiijii(index,a1,a2,a3,a4,a5,a6) {
   var sp = stackSave();
   try {
     return dynCall_iiiijii(index,a1,a2,a3,a4,a5,a6);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_jii(index,a1,a2) {
-  var sp = stackSave();
-  try {
-    return dynCall_jii(index,a1,a2);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-    return 0n;
-  }
-}
-
-function invoke_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
-  var sp = stackSave();
-  try {
-    dynCall_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -9236,6 +9033,8 @@ var missingLibrarySymbols = [
   'makePromiseCallback',
   'findMatchingCatch',
   'Browser_asyncPrepareDataCounter',
+  'arraySum',
+  'addDays',
   'FS_mkdirTree',
   '_setNetworkCallback',
   'heapObjectForWebGLType',
@@ -9276,8 +9075,11 @@ var missingLibrarySymbols = [
   'getLiveInheritedInstances',
   'enumReadValueFromPointer',
   'setDelayFunction',
+  'validateThis',
   'getStringOrSymbol',
   'emval_get_global',
+  'emval_lookupTypes',
+  'emval_addMethodCaller',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
@@ -9380,8 +9182,6 @@ var unexportedSymbols = [
   'MONTH_DAYS_LEAP_CUMULATIVE',
   'isLeapYear',
   'ydayFromDate',
-  'arraySum',
-  'addDays',
   'SYSCALLS',
   'getSocketFromFD',
   'getSocketAddress',
@@ -9479,7 +9279,6 @@ var unexportedSymbols = [
   'shallowCopyInternalPointer',
   'downcastPointer',
   'upcastPointer',
-  'validateThis',
   'char_0',
   'char_9',
   'makeLegalFunctionName',
@@ -9490,9 +9289,7 @@ var unexportedSymbols = [
   'count_emval_handles',
   'Emval',
   'emval_returnValue',
-  'emval_lookupTypes',
   'emval_methodCallers',
-  'emval_addMethodCaller',
   'reflectConstruct',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
