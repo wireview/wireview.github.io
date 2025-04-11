@@ -45,7 +45,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: /tmp/tmpkuyq8ctx.js
+// include: /tmp/tmpw0poqw67.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -235,14 +235,14 @@ Module['FS_createPath']("/wireshark", "wimaxasncp", true, true);
 
   })();
 
-// end include: /tmp/tmpkuyq8ctx.js
-// include: /tmp/tmpj5gubte6.js
+// end include: /tmp/tmpw0poqw67.js
+// include: /tmp/tmphyfkeaqu.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: /tmp/tmpj5gubte6.js
+  // end include: /tmp/tmphyfkeaqu.js
 // include: /src/lib/wiregasm/ext/mod.js
 // defaults
 
@@ -266,13 +266,13 @@ Module["onRuntimeInitialized"] = () => {
   Module.FS.mkdir("/plugins");
   Module.FS.mkdir("/uploads");
 };// end include: /src/lib/wiregasm/ext/mod.js
-// include: /tmp/tmpbvnfq_b1.js
+// include: /tmp/tmpk14x2lsr.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: /tmp/tmpbvnfq_b1.js
+  // end include: /tmp/tmpk14x2lsr.js
 
 
 // Sometimes an existing Module object exists with properties
